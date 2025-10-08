@@ -28,6 +28,10 @@ $stmt->execute($params);
 $trips = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
+<?php
+require_once __DIR__ . '/../includes/header.php';
+?>
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -124,3 +128,7 @@ $trips = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 </body>
 </html>
+
+<?php
+require_once __DIR__ . '/../includes/footer.php';
+?>
