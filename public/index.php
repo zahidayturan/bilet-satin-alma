@@ -40,10 +40,39 @@ $trips = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <h1>🚌 Otobüs Bileti Satın Alma Platformu</h1>
 
 <!-- Üst menü -->
-<nav>
+<nav style="margin-bottom: 15px;">
     <?php if (isLoggedIn()): ?>
-        Hoşgeldin, <?= htmlspecialchars($_SESSION['user']['full_name']) ?> |
+        <span>Hoşgeldin, <strong><?= htmlspecialchars($_SESSION['user']['full_name']) ?></strong></span> |
         <a href="logout.php">Çıkış Yap</a>
+        <br><br>
+
+        <!-- 🔹 Rol bazlı hızlı erişim menüsü -->
+        <?php
+        $role = $_SESSION['user']['role'] ?? '';
+        if ($role === 'admin'): ?>
+            <div style="background:#f3f3f3;padding:10px;border-radius:8px;">
+                <strong>🔧 Yönetim Menüsü:</strong>
+                <a href="admin_panel.php">Admin Paneli</a> |
+                <a href="admin_firmas.php">Firmalar</a> |
+                <a href="admin_firma_admin.php">Firma Adminleri</a> |
+                <a href="admin_coupons.php">Kuponlar</a>
+            </div>
+        <?php elseif ($role === 'company'): ?>
+            <div style="background:#f3f3f3;padding:10px;border-radius:8px;">
+                <strong>🏢 Firma Admin Menüsü:</strong>
+                <a href="company_panel.php">Firma Paneli</a> |
+                <a href="company_trips.php">Seferlerim</a> |
+                <a href="company_coupons.php">Kuponlarım</a> |
+                <a href="company_tickets.php">Biletler</a>
+            </div>
+        <?php elseif ($role === 'user'): ?>
+            <div style="background:#f3f3f3;padding:10px;border-radius:8px;">
+                <strong>👤 Yolcu Menüsü:</strong>
+                <a href="my_tickets.php">Biletlerim</a> |
+                <a href="logout.php">Çıkış Yap</a>
+            </div>
+        <?php endif; ?>
+
     <?php else: ?>
         <a href="login.php">Giriş Yap</a> | <a href="register.php">Kayıt Ol</a>
     <?php endif; ?>

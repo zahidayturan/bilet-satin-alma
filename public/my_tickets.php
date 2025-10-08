@@ -6,12 +6,14 @@ require_once __DIR__ . '/../includes/db.php';
 $user_id = $_SESSION['user']['id'];
 
 $stmt = $pdo->prepare("
-SELECT t.id AS ticket_id, t.status, t.total_price, tr.departure_city, tr.destination_city, tr.departure_time
+SELECT t.id AS ticket_id, t.status, t.total_price, tr.departure_city, tr.destination_city, tr.departure_time, b.seat_number
 FROM Tickets t
 JOIN Trips tr ON t.trip_id = tr.id
+LEFT JOIN Booked_Seats b ON b.ticket_id = t.id
 WHERE t.user_id = ?
 ORDER BY t.created_at DESC
 ");
+
 $stmt->execute([$user_id]);
 $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -32,13 +34,14 @@ $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <?php endif; ?>
 
 <table border="1" cellpadding="6">
-<tr><th>Kalkış</th><th>Varış</th><th>Tarih</th><th>Durum</th><th>Fiyat</th><th>İşlem</th></tr>
+<tr><th>Kalkış</th><th>Varış</th><th>Tarih</th><th>Koltuk No</th><th>Durum</th><th>Fiyat</th><th>İşlem</th></tr>
 
 <?php foreach ($tickets as $t): ?>
 <tr>
   <td><?= htmlspecialchars($t['departure_city']) ?></td>
   <td><?= htmlspecialchars($t['destination_city']) ?></td>
   <td><?= htmlspecialchars($t['departure_time']) ?></td>
+  <td><?= htmlspecialchars($t['seat_number'] ?? '-') ?></td>
   <td><?= htmlspecialchars($t['status']) ?></td>
   <td><?= htmlspecialchars($t['total_price']) ?> ₺</td>
   <td>

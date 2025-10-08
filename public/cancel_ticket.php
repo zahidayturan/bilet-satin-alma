@@ -23,6 +23,7 @@ if ($hoursLeft < 1) die("Kalkıştan 1 saatten az kaldığı için iptal edileme
 
 $stmt = $pdo->prepare("UPDATE Tickets SET status='canceled' WHERE id=?");
 $stmt->execute([$ticket_id]);
+$pdo->prepare("DELETE FROM Booked_Seats WHERE ticket_id = ?")->execute([$ticket_id]);
 
 header("Location: my_tickets.php");
 exit;
