@@ -1,0 +1,40 @@
+# === PHP / SQLite proje genel ayarları ===
+# SQLite veritabanı dosyaları (yerelde oluşturulur, git’e girmez)
+*.sqlite
+*.db
+database/
+data/
+
+# PHP hata logları ve cache dosyaları
+*.log
+*.cache
+*.tmp
+
+# Oturum ve geçici dosyalar
+sessions/
+tmp/
+cache/
+
+# VS Code veya IDE ayarları
+.vscode/
+.idea/
+*.code-workspace
+
+# Sistem dosyaları
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Composer veya vendor dizini (ileride composer eklersen)
+vendor/
+composer.lock
+
+# Docker çıktıları
+.env
+.docker/
+docker-compose.override.yml
+
+# Yedek dosyalar
+*.bak
+*.old
+*.swp
