@@ -2,7 +2,9 @@
 require_once __DIR__ . '/../includes/auth.php';
 requireRole(['user']);
 require_once __DIR__ . '/../includes/db.php';
-require_once __DIR__ . '/../includes/fpdf.php'; // FPDF kütüphanesi
+require_once __DIR__ . '/../vendor/autoload.php'; // mPDF'yi dahil et
+
+use Mpdf\Mpdf;
 
 $user_id = $_SESSION['user']['id'];
 $ticket_id = $_GET['id'] ?? null;
@@ -19,18 +21,17 @@ $stmt->execute([$ticket_id, $user_id]);
 $data = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$data) die("Bilet bulunamadı");
 
-$pdf = new FPDF();
-$pdf->AddPage();
-$pdf->SetFont('Arial', 'B', 16);
-$pdf->Cell(0, 10, 'Otobüs Bileti', 0, 1, 'C');
-$pdf->Ln(10);
+$mpdf = new Mpdf(['default_font' => 'dejavusans']); // Türkçe karakter dostu font
 
-$pdf->SetFont('Arial', '', 12);
-$pdf->Cell(0, 10, "Yolcu: {$data['full_name']}", 0, 1);
-$pdf->Cell(0, 10, "Kalkış: {$data['departure_city']}", 0, 1);
-$pdf->Cell(0, 10, "Varış: {$data['destination_city']}", 0, 1);
-$pdf->Cell(0, 10, "Tarih: {$data['departure_time']}", 0, 1);
-$pdf->Cell(0, 10, "Fiyat: {$data['total_price']} ₺", 0, 1);
+$html = "
+<h2 style='text-align:center;'>Otobüs Bileti</h2>
+<p><strong>Yolcu:</strong> {$data['full_name']}</p>
+<p><strong>Kalkış:</strong> {$data['departure_city']}</p>
+<p><strong>Varış:</strong> {$data['destination_city']}</p>
+<p><strong>Tarih:</strong> {$data['departure_time']}</p>
+<p><strong>Fiyat:</strong> {$data['total_price']} ₺</p>
+";
 
-$pdf->Output("D", "bilet_{$data['id']}.pdf");
+$mpdf->WriteHTML($html);
+$mpdf->Output("bilet_{$data['id']}.pdf", "D");
 exit;
