@@ -55,9 +55,11 @@ CREATE TABLE IF NOT EXISTS Coupons (
     id TEXT PRIMARY KEY,                     -- UUID
     code TEXT NOT NULL,
     discount REAL NOT NULL,
+    company_id TEXT NULL,
     usage_limit INTEGER NOT NULL,
     expire_date DATETIME NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (company_id) REFERENCES Bus_Company(id)
 );
 
 CREATE TABLE IF NOT EXISTS User_Coupons (

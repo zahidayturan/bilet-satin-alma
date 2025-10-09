@@ -41,41 +41,40 @@ require_once __DIR__ . '/../includes/header.php';
 </head>
 <body>
 
-<h1>🚌 Otobüs Bileti Satın Alma Platformu</h1>
-
 <!-- Üst menü -->
 <nav style="margin-bottom: 15px;">
     <?php if (isLoggedIn()): ?>
-        <span>Hoşgeldin, <strong><?= htmlspecialchars($_SESSION['user']['full_name']) ?></strong></span> |
-        <a href="logout.php">Çıkış Yap</a>
-        <br><br>
-
-        <!-- 🔹 Rol bazlı hızlı erişim menüsü -->
+        <div style="background:#f3f3f3;padding:10px;border-radius:8px;">
+        <span>Hoşgeldin, <strong><?= htmlspecialchars($_SESSION['user']['full_name']) ?></strong></span>
+        <br></br>
         <?php
         $role = $_SESSION['user']['role'] ?? '';
         if ($role === 'admin'): ?>
-            <div style="background:#f3f3f3;padding:10px;border-radius:8px;">
+            <div>
                 <strong>🔧 Yönetim Menüsü:</strong>
                 <a href="admin_panel.php">Admin Paneli</a> |
                 <a href="admin_firmas.php">Firmalar</a> |
                 <a href="admin_firma_admin.php">Firma Adminleri</a> |
                 <a href="admin_coupons.php">Kuponlar</a>
+                <a href="logout.php">Çıkış Yap</a>
             </div>
         <?php elseif ($role === 'company'): ?>
-            <div style="background:#f3f3f3;padding:10px;border-radius:8px;">
+            <div>
                 <strong>🏢 Firma Admin Menüsü:</strong>
                 <a href="company_panel.php">Firma Paneli</a> |
                 <a href="company_trips.php">Seferlerim</a> |
                 <a href="company_coupons.php">Kuponlarım</a> |
                 <a href="company_tickets.php">Biletler</a>
+                <a href="logout.php">Çıkış Yap</a>
             </div>
         <?php elseif ($role === 'user'): ?>
-            <div style="background:#f3f3f3;padding:10px;border-radius:8px;">
+            <div>
                 <strong>👤 Yolcu Menüsü:</strong>
                 <a href="my_tickets.php">Biletlerim</a> |
                 <a href="logout.php">Çıkış Yap</a>
             </div>
         <?php endif; ?>
+        </div>
 
     <?php else: ?>
         <a href="login.php">Giriş Yap</a> | <a href="register.php">Kayıt Ol</a>
