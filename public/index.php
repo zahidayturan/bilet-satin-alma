@@ -52,6 +52,7 @@ require_once __DIR__ . '/../includes/header.php';
         if ($role === 'admin'): ?>
             <div>
                 <strong>🔧 Yönetim Menüsü:</strong>
+                <a href="profile.php">Profilim</a> |
                 <a href="admin_panel.php">Admin Paneli</a> |
                 <a href="admin_firmas.php">Firmalar</a> |
                 <a href="admin_firma_admin.php">Firma Adminleri</a> |
@@ -61,6 +62,7 @@ require_once __DIR__ . '/../includes/header.php';
         <?php elseif ($role === 'company'): ?>
             <div>
                 <strong>🏢 Firma Admin Menüsü:</strong>
+                <a href="profile.php">Profilim</a> |
                 <a href="company_panel.php">Firma Paneli</a> |
                 <a href="company_trips.php">Seferlerim</a> |
                 <a href="company_coupons.php">Kuponlarım</a> |
@@ -70,6 +72,7 @@ require_once __DIR__ . '/../includes/header.php';
         <?php elseif ($role === 'user'): ?>
             <div>
                 <strong>👤 Yolcu Menüsü:</strong>
+                <a href="profile.php">Profilim</a> |
                 <a href="my_tickets.php">Biletlerim</a> |
                 <a href="logout.php">Çıkış Yap</a>
             </div>
