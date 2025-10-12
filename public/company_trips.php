@@ -5,13 +5,53 @@ require_once __DIR__ . '/../includes/db.php';
 
 $company_id = $_SESSION['user']['company_id'];
 
-// Sefer silme
+// ✳️ Sefer silme işlemi
 if (isset($_GET['delete'])) {
-    $stmt = $pdo->prepare("DELETE FROM Trips WHERE id = ? AND company_id = ?");
-    $stmt->execute([$_GET['delete'], $company_id]);
+    $trip_id = $_GET['delete'];
+
+    try {
+        $pdo->beginTransaction();
+
+        // Bu sefer bu firmaya mı ait?
+        $stmt = $pdo->prepare("SELECT id FROM Trips WHERE id = ? AND company_id = ?");
+        $stmt->execute([$trip_id, $company_id]);
+        $trip = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$trip) {
+            throw new Exception("Bu sefer size ait değil veya bulunamadı.");
+        }
+
+        // Bu sefere ait aktif biletleri al
+        $stmt = $pdo->prepare("
+            SELECT id AS ticket_id, user_id, total_price
+            FROM Tickets
+            WHERE trip_id = ? AND status = 'active'
+        ");
+        $stmt->execute([$trip_id]);
+        $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Her kullanıcıya iade yap ve biletleri iptal et
+        foreach ($tickets as $t) {
+            $pdo->prepare("UPDATE Tickets SET status='canceled' WHERE id=?")->execute([$t['ticket_id']]);
+            $pdo->prepare("DELETE FROM Booked_Seats WHERE ticket_id=?")->execute([$t['ticket_id']]);
+            $pdo->prepare("UPDATE User SET balance = balance + ? WHERE id=?")
+                ->execute([$t['total_price'], $t['user_id']]);
+        }
+
+        // Seferi sil
+        $stmt = $pdo->prepare("DELETE FROM Trips WHERE id = ? AND company_id = ?");
+        $stmt->execute([$trip_id, $company_id]);
+
+        $pdo->commit();
+
+        header("Location: company_trips.php?deleted=1");
+        exit;
+    } catch (Exception $e) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        die("Hata: " . htmlspecialchars($e->getMessage()));
+    }
 }
 
-// Tüm seferler
+// Tüm seferleri listele
 $stmt = $pdo->prepare("SELECT * FROM Trips WHERE company_id = ?");
 $stmt->execute([$company_id]);
 $trips = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -49,7 +89,7 @@ $trips = $stmt->fetchAll(PDO::FETCH_ASSOC);
   <td><?= htmlspecialchars($t['capacity']) ?></td>
   <td>
     <a href="company_edit_trip.php?id=<?= urlencode($t['id']) ?>">Düzenle</a> |
-    <a href="?delete=<?= urlencode($t['id']) ?>" onclick="return confirm('Silinsin mi?')">Sil</a>
+    <a href="?delete=<?= urlencode($t['id']) ?>" onclick="return confirm('Bu sefer iptal edilecek. Tüm yolculara ücret iadesi yapılacak. Emin misiniz?')">Seferi İptal Et</a>
   </td>
 </tr>
 <?php endforeach; ?>
