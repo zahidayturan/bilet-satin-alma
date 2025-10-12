@@ -5,14 +5,14 @@ require_once __DIR__ . '/../includes/db.php';
 
 $company_id = $_SESSION['user']['company_id'];
 
-// ✳️ Sefer silme işlemi
+// Sefer silme işlemi
 if (isset($_GET['delete'])) {
     $trip_id = $_GET['delete'];
 
     try {
         $pdo->beginTransaction();
 
-        // Bu sefer bu firmaya mı ait?
+        // Sefer bu firmaya mı ait kontrol et
         $stmt = $pdo->prepare("SELECT id FROM Trips WHERE id = ? AND company_id = ?");
         $stmt->execute([$trip_id, $company_id]);
         $trip = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -20,7 +20,7 @@ if (isset($_GET['delete'])) {
             throw new Exception("Bu sefer size ait değil veya bulunamadı.");
         }
 
-        // Bu sefere ait aktif biletleri al
+        // Seferdeki aktif biletleri getir
         $stmt = $pdo->prepare("
             SELECT id AS ticket_id, user_id, total_price
             FROM Tickets
@@ -29,17 +29,26 @@ if (isset($_GET['delete'])) {
         $stmt->execute([$trip_id]);
         $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Her kullanıcıya iade yap ve biletleri iptal et
+        // Her bilet için iade işlemi ve koltuk temizliği
         foreach ($tickets as $t) {
-            $pdo->prepare("UPDATE Tickets SET status='canceled' WHERE id=?")->execute([$t['ticket_id']]);
-            $pdo->prepare("DELETE FROM Booked_Seats WHERE ticket_id=?")->execute([$t['ticket_id']]);
+            // Bilet iptal et
+            $pdo->prepare("UPDATE Tickets SET status='canceled' WHERE id=?")
+                ->execute([$t['ticket_id']]);
+
+            // Koltuğu sil
+            $pdo->prepare("DELETE FROM Booked_Seats WHERE ticket_id=?")
+                ->execute([$t['ticket_id']]);
+
+            // Kullanıcıya iade
             $pdo->prepare("UPDATE User SET balance = balance + ? WHERE id=?")
                 ->execute([$t['total_price'], $t['user_id']]);
         }
 
-        // Seferi sil
-        $stmt = $pdo->prepare("DELETE FROM Trips WHERE id = ? AND company_id = ?");
-        $stmt->execute([$trip_id, $company_id]);
+        // Artık tüm biletler iptal edildi, bu sefere ait tüm Tickets kayıtlarını temizle
+        $pdo->prepare("DELETE FROM Tickets WHERE trip_id=?")->execute([$trip_id]);
+
+        // Son olarak seferi sil
+        $pdo->prepare("DELETE FROM Trips WHERE id=? AND company_id=?")->execute([$trip_id, $company_id]);
 
         $pdo->commit();
 
@@ -50,6 +59,7 @@ if (isset($_GET['delete'])) {
         die("Hata: " . htmlspecialchars($e->getMessage()));
     }
 }
+
 
 // Tüm seferleri listele
 $stmt = $pdo->prepare("SELECT * FROM Trips WHERE company_id = ?");
