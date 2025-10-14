@@ -36,6 +36,16 @@ if ($coupon['company_id'] !== null && $coupon['company_id'] !== $trip['company_i
     exit;
 }
 
+// Kullanım limiti kontrolü
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM User_Coupons WHERE coupon_id = ?");
+$stmt->execute([$coupon['id']]);
+$usedCount = (int)$stmt->fetchColumn();
+
+if ($usedCount >= $coupon['usage_limit']) {
+    echo json_encode(['valid' => false, 'error' => 'Bu kuponun kullanım limiti dolmuş']);
+    exit;
+}
+
 $new_price = round($trip['price'] * (1 - floatval($coupon['discount']) / 100), 2);
 
 echo json_encode(['valid' => true, 'new_price' => $new_price]);

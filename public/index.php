@@ -6,9 +6,16 @@ $from = $_GET['from'] ?? '';
 $to = $_GET['to'] ?? '';
 $date = $_GET['date'] ?? '';
 
-$query = "SELECT * FROM Trips WHERE datetime(departure_time) > datetime('now')";
+// Sorguyu oluştur
+$query = "
+    SELECT Trips.*, Bus_Company.name AS company_name
+    FROM Trips
+    LEFT JOIN Bus_Company ON Trips.company_id = Bus_Company.id
+    WHERE datetime(departure_time) > datetime('now')
+";
 $params = [];
 
+// Filtreleme
 if ($from !== '') {
     $query .= " AND departure_city LIKE :from";
     $params[':from'] = "%$from%";
@@ -21,6 +28,9 @@ if ($date !== '') {
     $query .= " AND DATE(departure_time) = :date";
     $params[':date'] = $date;
 }
+
+// En yakın 10 seferi listele
+$query .= " ORDER BY departure_time ASC LIMIT 10";
 
 $stmt = $pdo->prepare($query);
 $stmt->execute($params);
@@ -85,13 +95,32 @@ $trips = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <hr>
 
 <?php if ($trips): ?>
-  <table border="1" cellpadding="8" cellspacing="0">
-    <tr><th>Kalkış</th><th>Varış</th><th>Tarih</th><th>Fiyat</th><th></th></tr>
+  <h2>Aktif Seferler</h2>
+  <table border="1" cellpadding="8" cellspacing="0" style="width:100%;border-collapse:collapse;">
+    <tr>
+      <th>Firma</th>
+      <th>Kalkış</th>
+      <th>Varış</th>
+      <th>Kalkış Tarihi</th>
+      <th>Sefer Süresi</th>
+      <th>Fiyat</th>
+      <th>Seferi Görüntüle</th>
+    </tr>
     <?php foreach ($trips as $trip): ?>
+      <?php
+        // Sefer süresi hesaplama (varış zamanı - kalkış zamanı)
+        $departure_time = strtotime($trip['departure_time']);
+        $arrival_time = strtotime($trip['arrival_time']);
+        $duration = $arrival_time - $departure_time;
+        $hours = floor($duration / 3600);
+        $minutes = floor(($duration % 3600) / 60);
+      ?>
       <tr>
+        <td><?= htmlspecialchars($trip['company_name']) ?></td>
         <td><?= htmlspecialchars($trip['departure_city']) ?></td>
         <td><?= htmlspecialchars($trip['destination_city']) ?></td>
         <td><?= date('d.m.Y H:i', strtotime($trip['departure_time'])) ?></td>
+        <td><?= $hours ?> saat <?= $minutes ?> dakika</td>
         <td><?= htmlspecialchars($trip['price']) ?> ₺</td>
         <td>
           <a href="trip_detail.php?id=<?= urlencode($trip['id']) ?>">Detay</a>
@@ -102,6 +131,7 @@ $trips = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <?php else: ?>
   <p>Aktif sefer bulunamadı.</p>
 <?php endif; ?>
+
 </body>
 </html>
 
