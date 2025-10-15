@@ -5,7 +5,7 @@ require_once __DIR__ . '/../includes/db.php';
 
 $company_id = $_SESSION['user']['company_id'];
 
-// Sefer silme işlemi
+// 🧾 Sefer silme işlemi (iptal + iade)
 if (isset($_GET['delete'])) {
     $trip_id = $_GET['delete'];
 
@@ -29,26 +29,27 @@ if (isset($_GET['delete'])) {
         $stmt->execute([$trip_id]);
         $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Her bilet için iade işlemi ve koltuk temizliği
+        // Her bilet için iptal ve iade işlemleri
         foreach ($tickets as $t) {
             // Bilet iptal et
             $pdo->prepare("UPDATE Tickets SET status='canceled' WHERE id=?")
                 ->execute([$t['ticket_id']]);
 
-            // Koltuğu sil
+            // Koltukları sil
             $pdo->prepare("DELETE FROM Booked_Seats WHERE ticket_id=?")
                 ->execute([$t['ticket_id']]);
 
-            // Kullanıcıya iade
+            // Kullanıcıya ücret iadesi yap
             $pdo->prepare("UPDATE User SET balance = balance + ? WHERE id=?")
                 ->execute([$t['total_price'], $t['user_id']]);
         }
 
-        // Artık tüm biletler iptal edildi, bu sefere ait tüm Tickets kayıtlarını temizle
+        // Bilet kayıtlarını temizle (tarihçeyi korumak istersen bu satırı silebilirsin)
         $pdo->prepare("DELETE FROM Tickets WHERE trip_id=?")->execute([$trip_id]);
 
-        // Son olarak seferi sil
-        $pdo->prepare("DELETE FROM Trips WHERE id=? AND company_id=?")->execute([$trip_id, $company_id]);
+        // Seferi sil
+        $pdo->prepare("DELETE FROM Trips WHERE id=? AND company_id=?")
+            ->execute([$trip_id, $company_id]);
 
         $pdo->commit();
 
@@ -60,9 +61,17 @@ if (isset($_GET['delete'])) {
     }
 }
 
-
-// Tüm seferleri listele
-$stmt = $pdo->prepare("SELECT * FROM Trips WHERE company_id = ?");
+// ✳️ Sefer listesi (koltuk doluluk bilgisiyle)
+$stmt = $pdo->prepare("
+    SELECT 
+        t.*,
+        (SELECT COUNT(*) 
+         FROM Tickets ti 
+         WHERE ti.trip_id = t.id AND ti.status = 'active') AS sold_count
+    FROM Trips t
+    WHERE t.company_id = ?
+    ORDER BY t.departure_time ASC
+");
 $stmt->execute([$company_id]);
 $trips = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -72,6 +81,12 @@ $trips = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
   <meta charset="UTF-8">
   <title>Sefer Yönetimi</title>
+  <style>
+    table { border-collapse: collapse; width: 100%; }
+    th, td { padding: 8px; border: 1px solid #aaa; text-align: center; }
+    th { background-color: #f4f4f4; }
+    .actions a { margin: 0 5px; }
+  </style>
 </head>
 <body>
 <h2>🚌 Sefer Yönetimi</h2>
@@ -80,26 +95,34 @@ $trips = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <a href="company_add_trip.php">+ Yeni Sefer Ekle</a>
 
-<table border="1" cellpadding="6">
+<table>
 <tr>
   <th>Kalkış</th>
   <th>Varış</th>
   <th>Kalkış Saati</th>
+  <th>Varış Saati</th>
   <th>Fiyat</th>
   <th>Kapasite</th>
-  <th>İşlem</th>
+  <th>Satılan Koltuk</th>
+  <th>İşlemler</th>
 </tr>
 
 <?php foreach ($trips as $t): ?>
 <tr>
   <td><?= htmlspecialchars($t['departure_city']) ?></td>
   <td><?= htmlspecialchars($t['destination_city']) ?></td>
-  <td><?= htmlspecialchars($t['departure_time']) ?></td>
+  <td><?= date('d.m.Y H:i', strtotime($t['departure_time'])) ?></td>
+  <td><?= date('d.m.Y H:i', strtotime($t['arrival_time'])) ?></td>
   <td><?= htmlspecialchars($t['price']) ?> ₺</td>
   <td><?= htmlspecialchars($t['capacity']) ?></td>
-  <td>
-    <a href="company_edit_trip.php?id=<?= urlencode($t['id']) ?>">Düzenle</a> |
-    <a href="?delete=<?= urlencode($t['id']) ?>" onclick="return confirm('Bu sefer iptal edilecek. Tüm yolculara ücret iadesi yapılacak. Emin misiniz?')">Seferi İptal Et</a>
+  <td><?= htmlspecialchars($t['sold_count']) ?></td>
+  <td class="actions">
+    <a href="company_edit_trip.php?id=<?= urlencode($t['id']) ?>">✏️ Düzenle</a> |
+    <a href="company_trip_tickets.php?trip_id=<?= urlencode($t['id']) ?>">🎟️ Biletleri Gör</a> |
+    <a href="?delete=<?= urlencode($t['id']) ?>" 
+       onclick="return confirm('Bu sefer iptal edilecek. Tüm yolculara ücret iadesi yapılacak. Emin misiniz?')">
+       ❌ Seferi İptal Et
+    </a>
   </td>
 </tr>
 <?php endforeach; ?>
