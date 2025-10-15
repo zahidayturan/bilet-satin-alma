@@ -109,6 +109,7 @@ $coupons = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <td><?= htmlspecialchars($c['expire_date']) ?></td>
             <td><?= $c['company_name'] ? htmlspecialchars($c['company_name']) : '<em>Global</em>' ?></td>
             <td>
+                <a href="admin_edit_coupon.php?id=<?= urlencode($c['id']) ?>">✏️ Düzenle</a> |
                 <a href="?delete=<?= urlencode($c['id']) ?>" onclick="return confirm('Bu kupon silinsin mi?')">❌ Sil</a>
             </td>
         </tr>
