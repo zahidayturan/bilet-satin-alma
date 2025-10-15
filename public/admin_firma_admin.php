@@ -62,13 +62,16 @@ $admins = $pdo->query("SELECT u.id, u.full_name, u.email, b.name AS company
 <hr>
 <h3>Firma Admin Listesi</h3>
 <table border="1" cellpadding="5">
-    <tr><th>ID</th><th>Ad Soyad</th><th>Email</th><th>Firma</th></tr>
+    <tr><th>ID</th><th>Ad Soyad</th><th>Email</th><th>Firma</th><th>İşlem</th></tr>
     <?php foreach ($admins as $a): ?>
         <tr>
             <td><?= htmlspecialchars($a['id']) ?></td>
             <td><?= htmlspecialchars($a['full_name']) ?></td>
             <td><?= htmlspecialchars($a['email']) ?></td>
             <td><?= htmlspecialchars($a['company'] ?? '-') ?></td>
+            <td>
+                <a href="admin_edit_company_admin.php?id=<?= urlencode($a['id']) ?>">✏️ Düzenle</a>
+            </td>
         </tr>
     <?php endforeach; ?>
 </table>

@@ -98,19 +98,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
     <?php endif; ?>
   </div>
 
-  <h3>🔒 Şifre Değiştir</h3>
-  <form method="POST">
-    <label>Mevcut Şifre:</label>
-    <input type="password" name="old_password" required>
+  <?php if ($role === 'user' || $role === 'admin'): ?>
+    <h3>🔒 Şifre Değiştir</h3>
+    <form method="POST">
+      <label>Mevcut Şifre:</label>
+      <input type="password" name="old_password" required>
 
-    <label>Yeni Şifre:</label>
-    <input type="password" name="new_password" required>
+      <label>Yeni Şifre:</label>
+      <input type="password" name="new_password" required>
 
-    <label>Yeni Şifre (Tekrar):</label>
-    <input type="password" name="confirm_password" required>
+      <label>Yeni Şifre (Tekrar):</label>
+      <input type="password" name="confirm_password" required>
 
-    <button type="submit" name="change_password">Şifreyi Güncelle</button>
-  </form>
+      <button type="submit" name="change_password">Şifreyi Güncelle</button>
+    </form>
+  <?php else: ?>
+    <p>Şifrenizi veya bilgilerinizi değiştirmek için yöneticinize ulaşmalısınız.</p>
+  <?php endif; ?>
 </div>
 </body>
 </html>
