@@ -52,30 +52,28 @@ $trips = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <nav style="margin-bottom: 15px;">
 <?php if (isLoggedIn()): ?>
   <div style="background:#f3f3f3;padding:10px;border-radius:8px;">
-    <span>Hoşgeldin, <strong><?= htmlspecialchars($_SESSION['user']['full_name']) ?></strong></span>
-    <br><br>
     <?php $role = $_SESSION['user']['role'] ?? ''; ?>
     <?php if ($role === 'admin'): ?>
-      <strong>🔧 Yönetim:</strong>
+      <span>Admin - Hoş geldin, <strong><?= htmlspecialchars($_SESSION['user']['full_name']) ?></strong></span> |
       <a href="profile.php">Profilim</a> |
       <a href="admin_panel.php">Admin Paneli</a> |
       <a href="admin_firmas.php">Firmalar</a> |
       <a href="admin_firma_admin.php">Firma Adminleri</a> |
-      <a href="admin_coupons.php">Kuponlar</a> |
-      <a href="logout.php">Çıkış</a>
+      <a href="admin_coupons.php">Bütün Kuponlar</a> |
+      <a href="logout.php">Oturumu Kapat</a>
     <?php elseif ($role === 'company'): ?>
-      <strong>🏢 Firma:</strong>
+      <span>Firma - Hoş geldin, <strong><?= htmlspecialchars($_SESSION['user']['full_name']) ?></strong></span> |
       <a href="profile.php">Profilim</a> |
-      <a href="company_panel.php">Panel</a> |
+      <a href="company_panel.php">Firma Paneli</a> |
       <a href="company_trips.php">Seferlerim</a> |
-      <a href="company_coupons.php">Kuponlarım</a> |
+      <a href="company_coupons.php">Firma Kuponları</a> |
       <a href="company_tickets.php">Biletler</a> |
-      <a href="logout.php">Çıkış</a>
+      <a href="logout.php">Oturumu Kapat</a>
     <?php else: ?>
-      <strong>👤 Yolcu:</strong>
+      <span>Hoş geldin, <strong><?= htmlspecialchars($_SESSION['user']['full_name']) ?></strong></span> |
       <a href="profile.php">Profilim</a> |
       <a href="my_tickets.php">Biletlerim</a> |
-      <a href="logout.php">Çıkış</a>
+      <a href="logout.php">Oturumu Kapat</a>
     <?php endif; ?>
   </div>
 <?php else: ?>
