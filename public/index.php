@@ -40,10 +40,10 @@ require_once __DIR__ . '/../includes/header.php';
     <?php elseif ($role === 'company'): ?>
       <span>Firma - Hoş geldin, <strong><?= htmlspecialchars($_SESSION['user']['full_name']) ?></strong></span> |
       <a href="profile.php">Profilim</a> |
-      <a href="company_panel.php">Firma Paneli</a> |
-      <a href="company_trips.php">Seferlerim</a> |
-      <a href="company_coupons.php">Firma Kuponları</a> |
-      <a href="company_tickets.php">Biletler</a> |
+      <a href="company/panel.php">Firma Paneli</a> |
+      <a href="company/trips.php">Seferlerim</a> |
+      <a href="company/coupons.php">Firma Kuponları</a> |
+      <a href="company/tickets.php">Biletler</a> |
       <a href="logout.php">Oturumu Kapat</a>
     <?php else: ?>
       <span>Hoş geldin, <strong><?= htmlspecialchars($_SESSION['user']['full_name']) ?></strong></span> |

@@ -1,8 +1,8 @@
 <?php
-require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../../includes/auth.php';
 requireRole(['company']);
-
-require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../../includes/db.php'; 
+require_once __DIR__ . '/../../includes/functions.php';
 
 $company_id = $_SESSION['user']['company_id'];
 $id = $_GET['id'] ?? null;
@@ -12,7 +12,7 @@ $errorMsg = '';
 $trip = getTripDetailsForCompany($id, $company_id);
 if (!$trip) {
     // Ölmek yerine daha güvenli bir yönlendirme yapabiliriz.
-    header('Location: company_trips.php?error=' . urlencode('Düzenlenecek sefer bulunamadı veya size ait değil.'));
+    header('Location: trips.php?error=' . urlencode('Düzenlenecek sefer bulunamadı veya size ait değil.'));
     exit;
 }
 
@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($result['success']) {
         // Başarılı yönlendirme
-        header('Location: company_trips.php?success=' . urlencode($result['message'] ?? 'Sefer başarıyla güncellendi.'));
+        header('Location: trips.php?success=' . urlencode($result['message'] ?? 'Sefer başarıyla güncellendi.'));
         exit;
     } else {
         // Hata durumunda mesajı kaydet ve formu yeniden göster
@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
 <h2>✏️ Sefer Düzenle</h2>
-<a href="company_trips.php">← Geri</a>
+<a href="trips.php">← Geri</a>
 <hr>
 
 <?php if ($errorMsg): ?>

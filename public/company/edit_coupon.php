@@ -1,8 +1,8 @@
 <?php
-require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../../includes/auth.php';
 requireRole(['company']);
-
-require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../../includes/db.php'; 
+require_once __DIR__ . '/../../includes/functions.php';
 
 $company_id = $_SESSION['user']['company_id'];
 $coupon_id = $_GET['id'] ?? null;
@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
 <h2>✏️ Kupon Düzenle</h2>
-<a href="company_coupons.php">← Kupon Listesine Dön</a>
+<a href="coupons.php">← Kupon Listesine Dön</a>
 <hr>
 
 <?php if ($error): ?><div class="error">❌ <?= htmlspecialchars($error) ?></div><?php endif; ?>

@@ -1,8 +1,8 @@
 <?php
-require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../../includes/auth.php';
 requireRole(['company']);
-
-require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../../includes/db.php'; 
+require_once __DIR__ . '/../../includes/functions.php';
 
 $company_id = $_SESSION['user']['company_id'];
 $errorMsg = '';
@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if ($result['success']) {
         // Başarılıysa, mesajı ile birlikte sefer listesi sayfasına yönlendir
-        header('Location: company_trips.php?success=' . urlencode($result['message']));
+        header('Location: trips.php?success=' . urlencode($result['message']));
         exit;
     } else {
         // Hata durumunda mesajı kaydet ve formu yeniden göster
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
 <h2>+ Yeni Sefer Ekle</h2>
-<a href="company_trips.php">← Geri</a>
+<a href="trips.php">← Geri</a>
 <hr>
 
 <?php if ($errorMsg): ?><div class="error">❌ <?= htmlspecialchars($errorMsg) ?></div><?php endif; ?>

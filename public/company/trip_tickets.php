@@ -1,8 +1,8 @@
 <?php
-require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../../includes/auth.php';
 requireRole(['company']);
-
-require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../../includes/db.php'; 
+require_once __DIR__ . '/../../includes/functions.php';
 
 $company_id = $_SESSION['user']['company_id'];
 $trip_id = $_GET['trip_id'] ?? null;
@@ -23,7 +23,7 @@ if (isset($_GET['cancel'])) {
 
     if ($result['success']) {
         // İşlem başarılıysa sayfayı success parametresi ile yönlendir
-        header("Location: company_trip_tickets.php?trip_id=" . urlencode($trip_id) . "&success=1");
+        header("Location: trip_tickets.php?trip_id=" . urlencode($trip_id) . "&success=1");
         exit;
     } else {
         $errorMsg = $result['message'];
@@ -54,7 +54,7 @@ $tickets = getTripTickets($trip_id);
 </head>
 <body>
 <h2>🎟️ Bilet Listesi - <?= htmlspecialchars($trip['departure_city']) ?> → <?= htmlspecialchars($trip['destination_city']) ?></h2>
-<a href="company_trips.php">← Geri</a>
+<a href="trips.php">← Geri</a>
 <hr>
 
 <?php if ($errorMsg): ?>

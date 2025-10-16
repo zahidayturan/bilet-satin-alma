@@ -1,8 +1,8 @@
 <?php
-require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../../includes/auth.php';
 requireRole(['company']);
-
-require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../../includes/db.php'; 
+require_once __DIR__ . '/../../includes/functions.php';
 
 $company_id = $_SESSION['user']['company_id'];
 
@@ -46,7 +46,7 @@ $errorMsg = $_GET['error'] ?? '';
 <body>
 
 <h2>🎫 Firma Biletleri</h2>
-<a href="company_panel.php">← Geri</a>
+<a href="panel.php">← Geri</a>
 <hr>
 
 <?php if ($errorMsg): ?>
@@ -61,7 +61,7 @@ $errorMsg = $_GET['error'] ?? '';
     <input type="text" name="q" value="<?= htmlspecialchars($search) ?>" placeholder="Şehir veya yolcu adı ara...">
     <button type="submit">Ara</button>
     <?php if ($search !== ''): ?>
-      <a href="company_tickets.php" style="margin-left:10px;">❌ Temizle</a>
+      <a href="tickets.php" style="margin-left:10px;">❌ Temizle</a>
     <?php endif; ?>
   </form>
 </div>
@@ -97,7 +97,7 @@ $errorMsg = $_GET['error'] ?? '';
             // İptal linki, şirketin bilet iptal etme iş mantığına göre gösterilir
             if ($t['status'] === 'active' && $hoursLeft > 1): 
             ?>
-              <a href="company_cancel_ticket.php?id=<?= urlencode($t['ticket_id']) ?>"
+              <a href="cancel_ticket.php?id=<?= urlencode($t['ticket_id']) ?>"
                  onclick="return confirm('Bu bileti iptal edip kullanıcıya iade yapmak istediğinize emin misiniz?')">
                  ❌ İptal Et
               </a>

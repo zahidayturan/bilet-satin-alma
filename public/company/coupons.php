@@ -1,9 +1,8 @@
 <?php
-require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../../includes/auth.php';
 requireRole(['company']);
-// db.php ve functions.php'yi dahil ediyoruz.
-require_once __DIR__ . '/../includes/db.php'; 
-require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../../includes/db.php'; 
+require_once __DIR__ . '/../../includes/functions.php';
 
 $company_id = $_SESSION['user']['company_id'];
 $successMsg = '';
@@ -39,10 +38,10 @@ $coupon_id = $_GET['delete'];
 
     // POST/GET sonrası URL'yi temizleyerek tekrar gönderim hatasını önleyebiliriz.
     if ($result['success']) {
-        header("Location: company_coupons.php?success=" . urlencode($result['message']));
+        header("Location: coupons.php?success=" . urlencode($result['message']));
         exit;
     } else {
-        header("Location: company_coupons.php?error=" . urlencode($result['message']));
+        header("Location: coupons.php?error=" . urlencode($result['message']));
         exit;
     }
 }
@@ -75,7 +74,7 @@ $coupons = getCompanyCoupons($company_id);
 </head>
 <body>
 <h2>🎟️ Firma Kupon Yönetimi</h2>
-<a href="company_panel.php">← Geri</a>
+<a href="panel.php">← Geri</a>
 <hr>
 
 <?php if ($errorMsg): ?><div class="message error">❌ <?= $errorMsg ?></div><?php endif; ?>
@@ -130,7 +129,7 @@ $coupons = getCompanyCoupons($company_id);
       <td><?= $remaining ?></td>
       <td><?= htmlspecialchars($c['expire_date']) ?></td>
       <td>
-          <a href="company_edit_coupon.php?id=<?= urlencode($c['id']) ?>">✏️ Düzenle</a> |
+          <a href="edit_coupon.php?id=<?= urlencode($c['id']) ?>">✏️ Düzenle</a> |
           <a href="?delete=<?= urlencode($c['id']) ?>" onclick="return confirm('Bu kupon silinsin mi?')">❌ Sil</a>
       </td>
     </tr>

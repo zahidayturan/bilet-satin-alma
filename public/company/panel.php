@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../../includes/auth.php';
 requireRole(['company']);
 ?>
 
@@ -15,9 +15,9 @@ requireRole(['company']);
 
 <nav>
   <ul>
-    <li><a href="company_trips.php">🚌 Sefer Yönetimi</a></li>
-    <li><a href="company_coupons.php">🎟️ Kupon Yönetimi</a></li>
-    <li><a href="company_tickets.php">🎫 Biletler</a></li>
+    <li><a href="trips.php">🚌 Sefer Yönetimi</a></li>
+    <li><a href="coupons.php">🎟️ Kupon Yönetimi</a></li>
+    <li><a href="tickets.php">🎫 Biletler</a></li>
     <li><a href="index.php">← Ana Sayfa</a></li>
     <li><a href="logout.php">Çıkış Yap</a></li>
   </ul>
