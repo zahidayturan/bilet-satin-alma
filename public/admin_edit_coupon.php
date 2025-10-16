@@ -1,58 +1,42 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';
 requireRole(['admin']);
-require_once __DIR__ . '/../includes/db.php';
+
+require_once __DIR__ . '/../includes/functions.php';
 
 $id = $_GET['id'] ?? null;
 if (!$id) die("Geçersiz kupon ID.");
 
-// Firma listesi
-$companies = $pdo->query("SELECT id, name FROM Bus_Company ORDER BY name ASC")->fetchAll(PDO::FETCH_ASSOC);
-
-// Kupon bilgisi
-$stmt = $pdo->prepare("SELECT * FROM Coupons WHERE id = ?");
-$stmt->execute([$id]);
-$coupon = $stmt->fetch(PDO::FETCH_ASSOC);
-if (!$coupon) die("Kupon bulunamadı.");
-
 $success = '';
 $error = '';
 
+// 1. Firma listesini çekme (Dropdown için)
+$companies = getCompanyListForDropdown();
+
+// 2. Kupon bilgisini çekme
+$coupon = getCouponById($id);
+if (!$coupon) die("Kupon bulunamadı.");
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $code = strtoupper(trim($_POST['code']));
+    $code = $_POST['code'];
     $discount = floatval($_POST['discount']);
     $usage_limit = intval($_POST['usage_limit']);
     $expire_date = $_POST['expire_date'];
-    $company_id = $_POST['company_id'] ?: null;
+    // company_id boş gelirse null olarak fonksiyona iletilecek
+    $company_id = $_POST['company_id'] ?: null; 
 
-    try {
-        $stmt = $pdo->prepare("
-            UPDATE Coupons
-            SET code = :code,
-                discount = :discount,
-                usage_limit = :limit,
-                expire_date = :expire,
-                company_id = :cid
-            WHERE id = :id
-        ");
-        $stmt->execute([
-            ':code' => $code,
-            ':discount' => $discount,
-            ':limit' => $usage_limit,
-            ':expire' => $expire_date,
-            ':cid' => $company_id,
-            ':id' => $id
-        ]);
-        $success = "Kupon bilgileri başarıyla güncellendi.";
-
+    // 3. Kuponu güncelleme
+    if (updateCoupon($id, $code, $discount, $usage_limit, $expire_date, $company_id)) {
+        $success = "Kupon bilgileri başarıyla güncellendi. ✅";
+        
         // Güncel veriyi tekrar al
-        $stmt = $pdo->prepare("SELECT * FROM Coupons WHERE id = ?");
-        $stmt->execute([$id]);
-        $coupon = $stmt->fetch(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        $error = "Güncelleme hatası: " . $e->getMessage();
+        $coupon = getCouponById($id); 
+    } else {
+        $error = "Güncelleme hatası! Kod benzersiz olmayabilir veya veritabanı sorunu oluştu. ❌";
     }
 }
+
+// Form, güncel kupon verisi ($coupon) ile doldurulur.
 ?>
 
 <!DOCTYPE html>
@@ -66,8 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <a href="admin_coupons.php">← Kupon Listesine Dön</a>
 <hr>
 
-<?php if ($success): ?><div style="color:green;"><?= htmlspecialchars($success) ?></div><?php endif; ?>
-<?php if ($error): ?><div style="color:red;"><?= htmlspecialchars($error) ?></div><?php endif; ?>
+<?php if ($success): ?><div style="color:green;padding:10px;border:1px solid green;background-color:#e6ffe6;"><?= htmlspecialchars($success) ?></div><?php endif; ?>
+<?php if ($error): ?><div style="color:red;padding:10px;border:1px solid red;background-color:#ffe6e6;"><?= htmlspecialchars($error) ?></div><?php endif; ?>
 
 <form method="POST">
     <label>Kod:</label>

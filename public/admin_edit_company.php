@@ -1,7 +1,8 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';
 requireRole(['admin']);
-require_once __DIR__ . '/../includes/db.php';
+
+require_once __DIR__ . '/../includes/functions.php';
 
 $id = $_GET['id'] ?? null;
 if (!$id) die("Geçersiz ID");
@@ -9,28 +10,22 @@ if (!$id) die("Geçersiz ID");
 $errorMsg = '';
 $successMsg = '';
 
-// Firma bilgisi
-$stmt = $pdo->prepare("SELECT * FROM Bus_Company WHERE id = ?");
-$stmt->execute([$id]);
-$company = $stmt->fetch(PDO::FETCH_ASSOC);
+// 1. Firma bilgisini çekme
+$company = getBusCompanyById($id);
 if (!$company) die("Firma bulunamadı.");
 
-// Firma güncelleme
+// 2. Firma güncelleme
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name']);
-    $logo = trim($_POST['logo_path']);
-    try {
-        $stmt = $pdo->prepare("UPDATE Bus_Company SET name=?, logo_path=? WHERE id=?");
-        $stmt->execute([$name, $logo, $id]);
-        $successMsg = "Firma bilgileri güncellendi.";
+    $logo = trim($_POST['logo_path'] ?? '');
 
-        // Güncellenmiş veriyi yeniden çekelim
-        $stmt = $pdo->prepare("SELECT * FROM Bus_Company WHERE id = ?");
-        $stmt->execute([$id]);
-        $company = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    } catch (PDOException $e) {
-        $errorMsg = "Güncelleme hatası: " . $e->getMessage();
+    if (updateBusCompany($id, $name, $logo)) {
+        $successMsg = "Firma bilgileri başarıyla güncellendi. ✅";
+        
+        // Güncellenmiş veriyi formda göstermek için yeniden çekelim
+        $company = getBusCompanyById($id); 
+    } else {
+        $errorMsg = "Güncelleme hatası! Veritabanı sorunu oluştu. ❌";
     }
 }
 ?>
@@ -47,10 +42,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <hr>
 
 <?php if ($errorMsg): ?>
-  <div style="color:red;"><?= htmlspecialchars($errorMsg) ?></div>
+  <div style="color:red;padding:10px;border:1px solid red;background-color:#ffe6e6;"><?= htmlspecialchars($errorMsg) ?></div>
 <?php endif; ?>
 <?php if ($successMsg): ?>
-  <div style="color:green;"><?= htmlspecialchars($successMsg) ?></div>
+  <div style="color:green;padding:10px;border:1px solid green;background-color:#e6ffe6;"><?= htmlspecialchars($successMsg) ?></div>
 <?php endif; ?>
 
 <form method="POST">

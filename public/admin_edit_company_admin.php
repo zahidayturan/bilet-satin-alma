@@ -1,56 +1,58 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';
 requireRole(['admin']);
-require_once __DIR__ . '/../includes/db.php';
+
+require_once __DIR__ . '/../includes/functions.php';
 
 $id = $_GET['id'] ?? null;
 if (!$id) die("Geçersiz ID");
 
-// Firmalar
-$companies = $pdo->query("SELECT id, name FROM Bus_Company")->fetchAll(PDO::FETCH_ASSOC);
-
-// Firma admin bilgisi
-$stmt = $pdo->prepare("SELECT * FROM User WHERE id = ? AND role = 'company'");
-$stmt->execute([$id]);
-$admin = $stmt->fetch(PDO::FETCH_ASSOC);
-if (!$admin) die("Firma admini bulunamadı.");
-
 $errors = [];
 $success = '';
+
+// 1. Firma listesini çekme (Dropdown için)
+$companies = getCompanyListForDropdown();
+
+// 2. Firma admin bilgisini çekme
+$admin = getCompanyAdminById($id);
+if (!$admin) die("Firma admini bulunamadı.");
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['update_info'])) {
         // Bilgi güncelleme
-        $stmt = $pdo->prepare("UPDATE User SET full_name=?, email=?, company_id=? WHERE id=?");
-        $stmt->execute([
-            trim($_POST['full_name']),
-            trim($_POST['email']),
-            $_POST['company_id'],
-            $id
-        ]);
-        $success = "Bilgiler güncellendi.";
-        // Güncel veriyi tekrar çekelim
-        $stmt = $pdo->prepare("SELECT * FROM User WHERE id = ?");
-        $stmt->execute([$id]);
-        $admin = $stmt->fetch(PDO::FETCH_ASSOC);
+        $fullName = $_POST['full_name'];
+        $email = $_POST['email'];
+        $companyId = $_POST['company_id'];
+
+        if (updateCompanyAdminInfo($id, $fullName, $email, $companyId)) {
+            $success = "Bilgiler başarıyla güncellendi. ✅";
+            // Güncel veriyi formda göstermek için yeniden çekelim
+            $admin = getCompanyAdminById($id); 
+        } else {
+            $errors[] = "Bilgiler güncellenirken bir hata oluştu. (E-posta zaten kullanılıyor olabilir) ❌";
+        }
     }
 
     if (isset($_POST['change_password'])) {
+        // Şifre değiştirme
         $old = $_POST['old_password'];
         $new = $_POST['new_password'];
         $confirm = $_POST['confirm_password'];
 
         if (!password_verify($old, $admin['password'])) {
-            $errors[] = "Eski şifre hatalı.";
+            $errors[] = "Eski şifre hatalı. ❌";
         } elseif ($new !== $confirm) {
-            $errors[] = "Yeni şifreler eşleşmiyor.";
+            $errors[] = "Yeni şifreler eşleşmiyor. ❌";
         } elseif (strlen($new) < 5) {
-            $errors[] = "Yeni şifre en az 5 karakter olmalı.";
+            $errors[] = "Yeni şifre en az 5 karakter olmalı. ❌";
         } else {
             $hashed = password_hash($new, PASSWORD_BCRYPT);
-            $stmt = $pdo->prepare("UPDATE User SET password=? WHERE id=?");
-            $stmt->execute([$hashed, $id]);
-            $success = "Şifre başarıyla güncellendi.";
+            
+            if (updateCompanyAdminPassword($id, $hashed)) {
+                $success = "Şifre başarıyla güncellendi. ✅";
+            } else {
+                $errors[] = "Şifre güncellenirken bir veritabanı hatası oluştu. ❌";
+            }
         }
     }
 }
@@ -68,13 +70,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <hr>
 
 <?php if ($errors): ?>
-  <div style="color:red;">
+  <div style="color:red;padding:10px;border:1px solid red;background-color:#ffe6e6;">
     <?php foreach ($errors as $e): ?><div><?= htmlspecialchars($e) ?></div><?php endforeach; ?>
   </div>
 <?php endif; ?>
 
 <?php if ($success): ?>
-  <div style="color:green;"><?= htmlspecialchars($success) ?></div>
+  <div style="color:green;padding:10px;border:1px solid green;background-color:#e6ffe6;"><?= htmlspecialchars($success) ?></div>
 <?php endif; ?>
 
 <h3>Bilgileri Güncelle</h3>
