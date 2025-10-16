@@ -62,7 +62,7 @@ try {
             $stmt->execute([$trip_id]);
             $tripCompany = $stmt->fetchColumn();
             if ($coupon['company_id'] !== $tripCompany) {
-                throw new Exception("Bu kupon bu firmaya ait değil.");
+                throw new Exception("Bu kupon firma için geçersiz.");
             }
         }
 

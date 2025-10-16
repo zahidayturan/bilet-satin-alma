@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../includes/auth.php';
 requireRole(['user']);
 require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/functions.php';
 
 $trip_id = $_GET['id'] ?? null;
 if (!$trip_id) die("Geçersiz sefer ID");
@@ -9,34 +10,20 @@ if (!$trip_id) die("Geçersiz sefer ID");
 $user_id = $_SESSION['user']['id'];
 
 // Kullanıcı bilgisi
-$stmt = $pdo->prepare("SELECT * FROM User WHERE id = ?");
-$stmt->execute([$user_id]);
-$user = $stmt->fetch(PDO::FETCH_ASSOC);
+$user = getUserProfileDetails($user_id); 
+if (!$user) die("Kullanıcı bilgisi bulunamadı.");
 
 // Sefer ve firma bilgisi
-$stmt = $pdo->prepare("
-    SELECT Trips.*, Bus_Company.name AS company_name 
-    FROM Trips
-    LEFT JOIN Bus_Company ON Trips.company_id = Bus_Company.id
-    WHERE Trips.id = ?
-");
-$stmt->execute([$trip_id]);
-$trip = $stmt->fetch(PDO::FETCH_ASSOC);
+$trip = getTripDetailsForPurchase($trip_id);
 if (!$trip) die("Sefer bulunamadı.");
 
-// 🚫 Geçmiş sefer kontrolü
-if (strtotime($trip['departure_time']) <= time()) {
-    die("Bu seferin kalkış saati geçmiş, bilet alınamaz.");
+// Geçmiş sefer kontrolü
+if (isset($trip['error'])) {
+    die(htmlspecialchars($trip['error']));
 }
 
 // Dolu koltuklar
-$stmt = $pdo->prepare("
-    SELECT seat_number FROM Booked_Seats
-    WHERE ticket_id IN (SELECT id FROM Tickets WHERE trip_id = ? AND status = 'active')
-");
-$stmt->execute([$trip_id]);
-$bookedSeats = array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'seat_number');
-
+$bookedSeats = getBookedSeatsForTrip($trip_id);
 $capacity = (int)$trip['capacity'];
 ?>
 

@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/functions.php'; // Yeni fonksiyonlar için
 requireLogin();
 
 $user = $_SESSION['user'];
@@ -10,17 +10,14 @@ $user_id = $user['id'];
 $errors = [];
 $success = "";
 
-// Kullanıcı bilgilerini veritabanından çek
-$stmt = $pdo->prepare("
-    SELECT u.*, c.name AS company_name
-    FROM User u
-    LEFT JOIN Bus_Company c ON u.company_id = c.id
-    WHERE u.id = ?
-");
-$stmt->execute([$user_id]);
-$profile = $stmt->fetch(PDO::FETCH_ASSOC);
+// 1. Kullanıcı bilgilerini veritabanından çek
+$profile = getUserProfileDetails($user_id);
 
-// Şifre değiştirme işlemi
+if (!$profile) {
+    die("Profil bilgisi bulunamadı.");
+}
+
+// 2. Şifre değiştirme işlemi
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
     $old = $_POST['old_password'] ?? '';
     $new = $_POST['new_password'] ?? '';
@@ -31,18 +28,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
     } elseif ($new !== $confirm) {
         $errors[] = "Yeni şifreler eşleşmiyor.";
     } else {
-        // Eski şifreyi doğrula
-        $stmt = $pdo->prepare("SELECT password FROM User WHERE id = ?");
-        $stmt->execute([$user_id]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        // Şifre değiştirme iş mantığını fonksiyona devret
+        $result = changeUserPassword($user_id, $old, $new);
 
-        if (!$row || !password_verify($old, $row['password'])) {
-            $errors[] = "Mevcut şifre yanlış.";
+        if ($result['success']) {
+            $success = $result['message'];
+            // Form verilerini temizlemek için POST'u temizleyebiliriz.
         } else {
-            $hash = password_hash($new, PASSWORD_DEFAULT);
-            $stmt = $pdo->prepare("UPDATE User SET password=? WHERE id=?");
-            $stmt->execute([$hash, $user_id]);
-            $success = "Şifre başarıyla değiştirildi.";
+            $errors[] = $result['message'];
         }
     }
 }
@@ -58,10 +51,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
     .container { max-width: 600px; margin: auto; background: #f8f8f8; padding: 20px; border-radius: 10px; }
     h2 { text-align: center; }
     .info { background: #fff; padding: 10px 20px; border-radius: 6px; margin-bottom: 20px; }
-    .errors { color: red; margin: 10px 0; }
-    .success { color: green; margin: 10px 0; }
+    .errors { color: #880000; background-color: #ffdddd; border: 1px solid #ffaaaa; padding: 10px; margin: 10px 0; border-radius: 4px; }
+    .success { color: #006600; background-color: #ddffdd; border: 1px solid #aaffaa; padding: 10px; margin: 10px 0; border-radius: 4px; }
     label { display: block; margin-top: 10px; }
-    input { padding: 6px; width: 100%; }
+    input { padding: 6px; width: 100%; box-sizing: border-box; }
     button { margin-top: 15px; padding: 10px; width: 100%; background: #3498db; color: white; border: none; border-radius: 6px; cursor: pointer; }
     button:hover { background: #2980b9; }
   </style>
@@ -73,13 +66,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
   <hr>
 
   <?php if ($success): ?>
-    <div class="success"><?= htmlspecialchars($success) ?></div>
+    <div class="success">✅ <?= htmlspecialchars($success) ?></div>
   <?php endif; ?>
 
   <?php if ($errors): ?>
     <div class="errors">
       <?php foreach ($errors as $err): ?>
-        <div><?= htmlspecialchars($err) ?></div>
+        <div>❌ <?= htmlspecialchars($err) ?></div>
       <?php endforeach; ?>
     </div>
   <?php endif; ?>

@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../includes/auth.php';
 
 /**
  * Yeni bir otobüs firması ekler.
@@ -929,4 +930,401 @@ function createNewTrip(string $companyId, array $data): array
     } catch (PDOException $e) {
         return ['success' => false, 'message' => "Sefer ekleme sırasında veritabanı hatası oluştu: " . $e->getMessage()];
     }
+}
+
+/**
+ * Kalkış saati geçmiş olan kullanıcının aktif biletlerini 'expired' durumuna günceller.
+ *
+ * @param string $userId Kullanıcının ID'si.
+ * @return bool İşlem başarılıysa true.
+ */
+function expireUserPastTickets(string $userId): bool
+{
+    global $pdo;
+
+    try {
+        $stmt = $pdo->prepare("
+            UPDATE Tickets 
+            SET status = 'expired'
+            WHERE user_id = ? 
+              AND status = 'active' 
+              AND trip_id IN (
+                SELECT id FROM Trips WHERE datetime(departure_time) < datetime('now')
+              )
+        ");
+        $stmt->execute([$userId]);
+        return true;
+    } catch (PDOException $e) {
+        // Hata durumunda sadece loglama yapılabilir, kullanıcının sayfasını durdurmaya gerek yok.
+        // error_log("Bilet süresi dolumu hatası: " . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Belirtilen kullanıcının tüm biletlerini sefer, firma ve koltuk detaylarıyla birlikte getirir.
+ *
+ * @param string $userId Kullanıcının ID'si.
+ * @return array Biletlerin detaylı listesi.
+ */
+function getUserTicketsDetails(string $userId): array
+{
+    global $pdo;
+
+    try {
+        $stmt = $pdo->prepare("
+            SELECT 
+                t.id AS ticket_id, 
+                t.status, 
+                t.total_price, 
+                tr.departure_city, 
+                tr.destination_city, 
+                tr.departure_time, 
+                tr.arrival_time,
+                tr.id AS trip_id,
+                bc.name AS company_name,
+                b.seat_number
+            FROM Tickets t
+            JOIN Trips tr ON t.trip_id = tr.id
+            LEFT JOIN Bus_Company bc ON tr.company_id = bc.id
+            LEFT JOIN Booked_Seats b ON b.ticket_id = t.id
+            WHERE t.user_id = ?
+            ORDER BY t.created_at DESC
+        ");
+        $stmt->execute([$userId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        return [];
+    }
+}
+
+/**
+ * Belirtilen ID'ye sahip seferin detaylarını ve firma adını getirir.
+ *
+ * @param string $tripId Sefer ID'si.
+ * @return array|false Sefer bilgileri (dizi) veya bulunamazsa false.
+ */
+function getTripDetailsWithCompanyName(string $tripId): array|false
+{
+    global $pdo;
+    try {
+        $stmt = $pdo->prepare("
+            SELECT Trips.*, Bus_Company.name AS company_name 
+            FROM Trips
+            LEFT JOIN Bus_Company ON Trips.company_id = Bus_Company.id
+            WHERE Trips.id = ?
+        ");
+        $stmt->execute([$tripId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        return false;
+    }
+}
+
+/**
+ * Belirtilen sefere ait aktif durumdaki dolu koltuk sayısını (bilet sayısını) hesaplar.
+ *
+ * @param string $tripId Sefer ID'si.
+ * @return int Dolu koltuk sayısı.
+ */
+function getActiveBookedCountForTrip(string $tripId): int
+{
+    global $pdo;
+    try {
+        $stmt = $pdo->prepare("
+            SELECT COUNT(*) AS dolu 
+            FROM Tickets 
+            WHERE trip_id = ? AND status = 'active'
+        ");
+        $stmt->execute([$tripId]);
+        return (int)$stmt->fetch(PDO::FETCH_ASSOC)['dolu'];
+    } catch (PDOException $e) {
+        return 0;
+    }
+}
+
+/**
+ * Belirtilen kullanıcının tüm profil detaylarını (varsa firma adı dahil) getirir.
+ *
+ * @param string $userId Kullanıcının ID'si.
+ * @return array|false Profil bilgileri (dizi) veya bulunamazsa false.
+ */
+function getUserProfileDetails(string $userId): array|false
+{
+    global $pdo;
+    try {
+        $stmt = $pdo->prepare("
+            SELECT u.*, c.name AS company_name
+            FROM User u
+            LEFT JOIN Bus_Company c ON u.company_id = c.id
+            WHERE u.id = ?
+        ");
+        $stmt->execute([$userId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        return false;
+    }
+}
+
+/**
+ * Kullanıcının şifresini güvenli bir şekilde değiştirir.
+ *
+ * @param string $userId Kullanıcının ID'si.
+ * @param string $oldPassword Mevcut şifre.
+ * @param string $newPassword Yeni şifre.
+ * @return array Sonuç dizisi: ['success' => bool, 'message' => string]
+ */
+function changeUserPassword(string $userId, string $oldPassword, string $newPassword): array
+{
+    global $pdo;
+    
+    // 1. Mevcut şifreyi doğrula
+    $stmt = $pdo->prepare("SELECT password FROM User WHERE id = ?");
+    $stmt->execute([$userId]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$row || !password_verify($oldPassword, $row['password'])) {
+        return ['success' => false, 'message' => "Mevcut şifre yanlış."];
+    }
+    
+    // 2. Yeni şifreyi hash'le ve güncelle
+    try {
+        $hash = password_hash($newPassword, PASSWORD_DEFAULT);
+        $stmt = $pdo->prepare("UPDATE User SET password=? WHERE id=?");
+        $stmt->execute([$hash, $userId]);
+        
+        return ['success' => true, 'message' => "Şifre başarıyla değiştirildi."];
+
+    } catch (PDOException $e) {
+        return ['success' => false, 'message' => "Şifre güncelleme hatası: " . $e->getMessage()];
+    }
+}
+
+/**
+ * Kullanıcı tarafından belirtilen filtrelerle aktif seferleri listeler.
+ *
+ * @param string $from Kalkış şehri filtresi.
+ * @param string $to Varış şehri filtresi.
+ * @param string $date Tarih filtresi (YYYY-MM-DD).
+ * @param int $limit Maksimum sefer sayısı.
+ * @return array Seferlerin firma adıyla birlikte listesi.
+ */
+function searchActiveTrips(string $from = '', string $to = '', string $date = '', int $limit = 10): array
+{
+    global $pdo;
+
+    $query = "
+        SELECT Trips.*, Bus_Company.name AS company_name
+        FROM Trips
+        LEFT JOIN Bus_Company ON Trips.company_id = Bus_Company.id
+        WHERE datetime(departure_time) > datetime('now')
+    ";
+    $params = [];
+
+    // Filtreleme
+    if ($from !== '') {
+        $query .= " AND departure_city LIKE :from";
+        $params[':from'] = "%$from%";
+    }
+    if ($to !== '') {
+        $query .= " AND destination_city LIKE :to";
+        $params[':to'] = "%$to%";
+    }
+    if ($date !== '') {
+        $query .= " AND DATE(departure_time) = :date";
+        $params[':date'] = $date;
+    }
+
+    // Sıralama ve Limit
+    $query .= " ORDER BY departure_time ASC LIMIT :limit";
+    $params[':limit'] = $limit;
+
+    try {
+        $stmt = $pdo->prepare($query);
+        // PDO'da LIMIT parametresini doğrudan bindValue ile INTEGER olarak belirtmek gerekir.
+        // LIMIT için özel bir durum: MySQL/SQLite LIMIT/OFFSET değerleri için doğrudan integer bind'ı desteklemez. 
+        // Ancak bu örnekte, LIMIT değeri sabit olduğu için, güvenlik amacıyla sorguyu dikkatli hazırlayabiliriz.
+        // PDO::PARAM_INT kullanımını manuel olarak ekliyorum:
+
+        foreach ($params as $key => &$value) {
+            if ($key === ':limit') continue;
+            $stmt->bindParam($key, $value);
+        }
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        // Hata durumunda boş dizi döndür
+        // error_log("Sefer arama hatası: " . $e->getMessage());
+        return [];
+    }
+}
+
+/**
+ * Kupon kodunu belirli bir sefer için doğrular ve geçerliyse yeni fiyatı hesaplar.
+ *
+ * @param string $tripId Sefer ID'si.
+ * @param string $code Kupon kodu.
+ * @return array Sonuç dizisi: ['valid' => bool, 'new_price' => float|null, 'error' => string|null]
+ */
+function validateCouponAndCalculatePrice(string $tripId, string $code): array
+{
+    global $pdo;
+    $code = strtoupper(trim($code));
+
+    // 1. Sefer Bilgisini Çek
+    $stmt = $pdo->prepare("SELECT price, company_id FROM Trips WHERE id = ?");
+    $stmt->execute([$tripId]);
+    $trip = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$trip) {
+        return ['valid' => false, 'new_price' => null, 'error' => 'Sefer bulunamadı.'];
+    }
+    
+    // 2. Kupon Bilgisini Çek
+    $stmt = $pdo->prepare("SELECT * FROM Coupons WHERE UPPER(code) = ?");
+    $stmt->execute([$code]);
+    $coupon = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$coupon) {
+        return ['valid' => false, 'new_price' => null, 'error' => 'Kupon bulunamadı.'];
+    }
+
+    // 3. Geçerlilik Kontrolleri
+    if ($coupon['expire_date'] < date('Y-m-d')) {
+        return ['valid' => false, 'new_price' => null, 'error' => 'Kupon süresi dolmuş.'];
+    }
+
+    if ($coupon['company_id'] !== null && $coupon['company_id'] !== $trip['company_id']) {
+        return ['valid' => false, 'new_price' => null, 'error' => 'Bu kupon bu firmaya ait değil.'];
+    }
+
+    // 4. Kullanım Limiti Kontrolü
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM User_Coupons WHERE coupon_id = ?");
+    $stmt->execute([$coupon['id']]);
+    $usedCount = (int)$stmt->fetchColumn();
+
+    if ($usedCount >= $coupon['usage_limit']) {
+        return ['valid' => false, 'new_price' => null, 'error' => 'Bu kuponun kullanım limiti dolmuş.'];
+    }
+
+    // 5. Yeni Fiyatı Hesapla
+    $newPrice = round($trip['price'] * (1 - floatval($coupon['discount']) / 100), 2);
+
+    return ['valid' => true, 'new_price' => $newPrice, 'error' => null, 'coupon_id' => $coupon['id'], 'discount' => $coupon['discount']];
+}
+
+/**
+ * Kullanıcı tarafından satın alınan bir bileti, zaman kontrolü yaparak iptal eder ve iade yapar.
+ *
+ * @param string $ticketId İptal edilecek biletin ID'si.
+ * @param string $userId İşlemi yapan kullanıcının ID'si (yetki kontrolü için).
+ * @param int $minHoursBeforeDeparture İptal için minimum kalan saat (varsayılan 1 saat).
+ * @return array Sonuç dizisi: ['success' => bool, 'message' => string]
+ */
+function cancelTicketAndRefundByUser(string $ticketId, string $userId, int $minHoursBeforeDeparture = 1): array
+{
+    global $pdo;
+
+    try {
+        $pdo->beginTransaction();
+
+        // 1. Bilet ve Sefer Bilgilerini Çek (Yetki ve Fiyat için)
+        $stmt = $pdo->prepare("
+            SELECT t.id, t.status, t.total_price, tr.departure_time
+            FROM Tickets t
+            JOIN Trips tr ON t.trip_id = tr.id
+            WHERE t.id = ? AND t.user_id = ? AND t.status = 'active'
+        ");
+        $stmt->execute([$ticketId, $userId]);
+        $ticket = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$ticket) {
+            $pdo->rollBack();
+            return ['success' => false, 'message' => 'Aktif bilet bulunamadı veya size ait değil.'];
+        }
+
+        // 2. Zaman Kontrolü
+        $hoursLeft = (strtotime($ticket['departure_time']) - time()) / 3600;
+        if ($hoursLeft < $minHoursBeforeDeparture) {
+            $pdo->rollBack();
+            return ['success' => false, 'message' => "Kalkıştan {$minHoursBeforeDeparture} saatten az kaldığı için iptal edilemez."];
+        }
+
+        // 3. Bilet iptali
+        $stmt = $pdo->prepare("UPDATE Tickets SET status='canceled' WHERE id=?");
+        $stmt->execute([$ticketId]);
+
+        // 4. Koltuğu boşalt
+        $stmt = $pdo->prepare("DELETE FROM Booked_Seats WHERE ticket_id = ?");
+        $stmt->execute([$ticketId]);
+
+        // 5. Kullanıcının bakiyesine iade
+        $stmt = $pdo->prepare("UPDATE User SET balance = balance + ? WHERE id = ?");
+        $stmt->execute([$ticket['total_price'], $userId]);
+
+        $pdo->commit();
+
+        return ['success' => true, 'message' => "Bilet başarıyla iptal edildi. {$ticket['total_price']} ₺ bakiyenize iade edildi."];
+
+    } catch (PDOException $e) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        return ['success' => false, 'message' => "Veritabanı hatası: " . $e->getMessage()];
+    } catch (Exception $e) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        return ['success' => false, 'message' => "Genel hata: " . $e->getMessage()];
+    }
+}
+
+/**
+ * Belirtilen ID'ye sahip seferin detaylarını, firma adını ve zaman kontrolünü yaparak getirir.
+ *
+ * @param string $tripId Sefer ID'si.
+ * @return array|false Sefer bilgileri (dizi) veya bulunamaz/geçmişse false.
+ */
+function getTripDetailsForPurchase(string $tripId): array|false
+{
+    global $pdo;
+
+    // Sefer ve firma bilgisi
+    $stmt = $pdo->prepare("
+        SELECT Trips.*, Bus_Company.name AS company_name 
+        FROM Trips
+        LEFT JOIN Bus_Company ON Trips.company_id = Bus_Company.id
+        WHERE Trips.id = ?
+    ");
+    $stmt->execute([$tripId]);
+    $trip = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$trip) {
+        return false;
+    }
+
+    // Geçmiş sefer kontrolü
+    if (strtotime($trip['departure_time']) <= time()) {
+        return ['error' => 'Bu seferin kalkış saati geçmiş, bilet alınamaz.'];
+    }
+    
+    return $trip;
+}
+
+/**
+ * Belirtilen sefere ait aktif olarak rezerve edilmiş koltuk numaralarını getirir.
+ *
+ * @param string $tripId Sefer ID'si.
+ * @return array Dolu koltuk numaralarının dizisi (string veya int).
+ */
+function getBookedSeatsForTrip(string $tripId): array
+{
+    global $pdo;
+
+    $stmt = $pdo->prepare("
+        SELECT seat_number FROM Booked_Seats
+        WHERE ticket_id IN (SELECT id FROM Tickets WHERE trip_id = ? AND status = 'active')
+    ");
+    $stmt->execute([$tripId]);
+    
+    // PHP'de array_column her zaman string döner, bu yüzden dönüş tipi int olsa bile dikkat etmek gerekir.
+    return array_map('intval', array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'seat_number'));
 }

@@ -1,43 +1,20 @@
 <?php
 require_once __DIR__ . '/../includes/db.php';
-require_once __DIR__ . '/../includes/auth.php';
+
+require_once __DIR__ . '/../includes/functions.php'; // Yeni fonksiyonlar için
 
 $from = $_GET['from'] ?? '';
 $to = $_GET['to'] ?? '';
 $date = $_GET['date'] ?? '';
 
-// Sorguyu oluştur
-$query = "
-    SELECT Trips.*, Bus_Company.name AS company_name
-    FROM Trips
-    LEFT JOIN Bus_Company ON Trips.company_id = Bus_Company.id
-    WHERE datetime(departure_time) > datetime('now')
-";
-$params = [];
-
-// Filtreleme
-if ($from !== '') {
-    $query .= " AND departure_city LIKE :from";
-    $params[':from'] = "%$from%";
-}
-if ($to !== '') {
-    $query .= " AND destination_city LIKE :to";
-    $params[':to'] = "%$to%";
-}
-if ($date !== '') {
-    $query .= " AND DATE(departure_time) = :date";
-    $params[':date'] = $date;
-}
-
-// En yakın 10 seferi listele
-$query .= " ORDER BY departure_time ASC LIMIT 10";
-
-$stmt = $pdo->prepare($query);
-$stmt->execute($params);
-$trips = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// İş mantığını fonksiyona devret
+$trips = searchActiveTrips($from, $to, $date, 10);
 ?>
 
-<?php require_once __DIR__ . '/../includes/header.php'; ?>
+<?php 
+// Header ve Footer, dış dosyalardan çağrıldığı için HTML'in içinde kalabilir.
+require_once __DIR__ . '/../includes/header.php'; 
+?>
 
 <!DOCTYPE html>
 <html lang="tr">
@@ -48,7 +25,6 @@ $trips = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 <body>
 
-<!-- Menü -->
 <nav style="margin-bottom: 15px;">
 <?php if (isLoggedIn()): ?>
   <div style="background:#f3f3f3;padding:10px;border-radius:8px;">
@@ -106,7 +82,7 @@ $trips = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </tr>
     <?php foreach ($trips as $trip): ?>
       <?php
-        // Sefer süresi hesaplama (varış zamanı - kalkış zamanı)
+        // Sefer süresi hesaplama (Sunum mantığı)
         $departure_time = strtotime($trip['departure_time']);
         $arrival_time = strtotime($trip['arrival_time']);
         $duration = $arrival_time - $departure_time;

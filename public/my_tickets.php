@@ -1,45 +1,25 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';
 requireRole(['user']);
-require_once __DIR__ . '/../includes/db.php';
+
+require_once __DIR__ . '/../includes/functions.php';
 
 $user_id = $_SESSION['user']['id'];
 
-
-// 🔄 1. Geçmiş biletleri "expired" yap
-$pdo->prepare("
-    UPDATE Tickets 
-    SET status = 'expired'
-    WHERE user_id = ? 
-      AND status = 'active' 
-      AND trip_id IN (
-        SELECT id FROM Trips WHERE datetime(departure_time) < datetime('now')
-      )
-")->execute([$user_id]);
+// 1. Geçmiş biletleri "expired" yapma işlemini fonksiyona devret
+expireUserPastTickets($user_id);
 
 
-// 🎟️ 2. Biletleri detaylı çek
-$stmt = $pdo->prepare("
-SELECT 
-  t.id AS ticket_id, 
-  t.status, 
-  t.total_price, 
-  tr.departure_city, 
-  tr.destination_city, 
-  tr.departure_time, 
-  tr.arrival_time,
-  tr.id AS trip_id,
-  bc.name AS company_name,
-  b.seat_number
-FROM Tickets t
-JOIN Trips tr ON t.trip_id = tr.id
-LEFT JOIN Bus_Company bc ON tr.company_id = bc.id
-LEFT JOIN Booked_Seats b ON b.ticket_id = t.id
-WHERE t.user_id = ?
-ORDER BY t.created_at DESC
-");
-$stmt->execute([$user_id]);
-$tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// 2. Biletleri detaylı çekme işlemini fonksiyona devret
+$tickets = getUserTicketsDetails($user_id);
+
+
+// Mesaj Yönetimi
+$successMsg = $_GET['success'] ?? '';
+$errorMsg = $_GET['error'] ?? '';
+$isPurchased = isset($_GET['purchased']); // Yeni satın alma durumu için
+
+
 ?>
 
 <!DOCTYPE html>
@@ -54,6 +34,9 @@ $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
     tr:nth-child(even) { background: #fafafa; }
     .expired { color: gray; }
     .cancel-link { color: red; }
+    .message { padding: 10px; margin-bottom: 15px; border-radius: 4px; font-weight: bold; }
+    .success { color: #006600; background-color: #ddffdd; border: 1px solid #aaffaa; }
+    .error { color: #880000; background-color: #ffdddd; border: 1px solid #ffaaaa; }
   </style>
 </head>
 <body>
@@ -62,9 +45,16 @@ $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <a href="index.php">← Ana Sayfa</a>
 <hr>
 
-<?php if (isset($_GET['success'])): ?>
-  <p style="color:green;">Bilet başarıyla satın alındı!</p>
+<?php if ($isPurchased): ?>
+  <div class="message success">✅ Bilet başarıyla satın alındı!</div>
 <?php endif; ?>
+<?php if ($successMsg): ?>
+  <div class="message success">✅ <?= htmlspecialchars($successMsg) ?></div>
+<?php endif; ?>
+<?php if ($errorMsg): ?>
+  <div class="message error">❌ <?= htmlspecialchars($errorMsg) ?></div>
+<?php endif; ?>
+
 
 <?php if (empty($tickets)): ?>
   <p>Hiç biletiniz yok.</p>
@@ -94,7 +84,7 @@ $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
           <?php
             $hoursLeft = (strtotime($t['departure_time']) - time()) / 3600;
             if ($t['status'] === 'active' && $hoursLeft > 1): ?>
-              <a href="cancel_ticket.php?id=<?= urlencode($t['ticket_id']) ?>" class="cancel-link">İptal Et</a> |
+              <a href="cancel_ticket.php?id=<?= urlencode($t['ticket_id']) ?>" class="cancel-link" onclick="return confirm('Bu bileti iptal etmek istediğinizden emin misiniz? Yapılan iade bakiyenize eklenecektir.')">İptal Et</a> |
           <?php endif; ?>
           <a href="download_ticket.php?id=<?= urlencode($t['ticket_id']) ?>">PDF İndir</a>
         </td>
