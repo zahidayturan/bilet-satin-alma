@@ -18,8 +18,8 @@ requireRole(['company']);
     <li><a href="trips.php">🚌 Sefer Yönetimi</a></li>
     <li><a href="coupons.php">🎟️ Kupon Yönetimi</a></li>
     <li><a href="tickets.php">🎫 Biletler</a></li>
-    <li><a href="index.php">← Ana Sayfa</a></li>
-    <li><a href="logout.php">Çıkış Yap</a></li>
+    <li><a href="../index.php">← Ana Sayfa</a></li>
+    <li><a href="../logout.php">Çıkış Yap</a></li>
   </ul>
 </nav>
 

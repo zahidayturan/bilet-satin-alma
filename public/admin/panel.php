@@ -16,11 +16,11 @@ requireRole(['admin']);
 
 <nav>
     <ul>
-        <li><a href="admin_firmas.php">🏢 Firma Yönetimi</a></li>
-        <li><a href="admin_firma_admin.php">👤 Firma Admin Yönetimi</a></li>
-        <li><a href="admin_coupons.php">🎟️ Kupon Yönetimi</a></li>
-        <li><a href="index.php">← Ana Sayfa</a></li>
-        <li><a href="logout.php">Çıkış Yap</a></li>
+        <li><a href="firmas.php">🏢 Firma Yönetimi</a></li>
+        <li><a href="firma_admin.php">👤 Firma Admin Yönetimi</a></li>
+        <li><a href="coupons.php">🎟️ Kupon Yönetimi</a></li>
+        <li><a href="../index.php">← Ana Sayfa</a></li>
+        <li><a href="../logout.php">Çıkış Yap</a></li>
     </ul>
 </nav>
 

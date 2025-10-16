@@ -32,10 +32,10 @@ require_once __DIR__ . '/../includes/header.php';
     <?php if ($role === 'admin'): ?>
       <span>Admin - Hoş geldin, <strong><?= htmlspecialchars($_SESSION['user']['full_name']) ?></strong></span> |
       <a href="profile.php">Profilim</a> |
-      <a href="admin_panel.php">Admin Paneli</a> |
-      <a href="admin_firmas.php">Firmalar</a> |
-      <a href="admin_firma_admin.php">Firma Adminleri</a> |
-      <a href="admin_coupons.php">Bütün Kuponlar</a> |
+      <a href="admin/panel.php">Admin Paneli</a> |
+      <a href="admin/firmas.php">Firmalar</a> |
+      <a href="admin/firma_admin.php">Firma Adminleri</a> |
+      <a href="admin/coupons.php">Bütün Kuponlar</a> |
       <a href="logout.php">Oturumu Kapat</a>
     <?php elseif ($role === 'company'): ?>
       <span>Firma - Hoş geldin, <strong><?= htmlspecialchars($_SESSION['user']['full_name']) ?></strong></span> |

@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
 <h2>✏️ Firma Düzenle</h2>
-<a href="admin_firmas.php">← Geri Dön</a>
+<a href="firmas.php">← Geri Dön</a>
 <hr>
 
 <?php if ($errorMsg): ?>

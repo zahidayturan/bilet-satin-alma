@@ -43,7 +43,7 @@ $companies = getAllBusCompanies();
 </head>
 <body>
 <h2>🏢 Firma Yönetimi</h2>
-<a href="admin_panel.php">← Admin Paneli</a>
+<a href="panel.php">← Admin Paneli</a>
 <hr>
 
 <?php if ($errorMsg): ?>
@@ -76,7 +76,7 @@ $companies = getAllBusCompanies();
                 <td><?= htmlspecialchars($c['logo_path']) ?></td>
                 <td><?= htmlspecialchars($c['created_at']) ?></td>
                 <td>
-                    <a href="admin_edit_company.php?id=<?= urlencode($c['id']) ?>">✏️ Düzenle</a> |
+                    <a href="edit_company.php?id=<?= urlencode($c['id']) ?>">✏️ Düzenle</a> |
                     <a href="?delete=<?= urlencode($c['id']) ?>" onclick="return confirm('Bu firmayı silmek istediğinizden emin misiniz?')">🗑️ Sil</a>
                 </td>
             </tr>

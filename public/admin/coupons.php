@@ -46,7 +46,7 @@ $coupons = getAllCouponsWithUsage();
 </head>
 <body>
 <h2>🎟️ Kupon Yönetimi (Admin)</h2>
-<a href="admin_panel.php">← Admin Paneli</a>
+<a href="panel.php">← Admin Paneli</a>
 <hr>
 
 <?php if ($errorMsg): ?><div style="color:red;padding:10px;border:1px solid red;background-color:#ffe6e6;"><?= htmlspecialchars($errorMsg) ?></div><?php endif; ?>
@@ -106,7 +106,7 @@ $coupons = getAllCouponsWithUsage();
                 <td><?= htmlspecialchars($c['expire_date']) ?></td>
                 <td><?= $c['company_name'] ? htmlspecialchars($c['company_name']) : '<em>Global</em>' ?></td>
                 <td>
-                    <a href="admin_edit_coupon.php?id=<?= urlencode($c['id']) ?>">✏️ Düzenle</a> |
+                    <a href="edit_coupon.php?id=<?= urlencode($c['id']) ?>">✏️ Düzenle</a> |
                     <a href="?delete=<?= urlencode($c['id']) ?>" onclick="return confirm('Bu kupon silinsin mi?')">❌ Sil</a>
                 </td>
             </tr>

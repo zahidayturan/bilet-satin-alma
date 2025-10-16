@@ -37,7 +37,7 @@ $admins = getAllCompanyAdmins();
 </head>
 <body>
 <h2>👤 Firma Admin Yönetimi</h2>
-<a href="admin_panel.php">← Admin Paneli</a>
+<a href="panel.php">← Admin Paneli</a>
 <hr>
 
 <?php if ($errorMsg): ?>
@@ -79,7 +79,7 @@ $admins = getAllCompanyAdmins();
                 <td><?= htmlspecialchars($a['email']) ?></td>
                 <td><?= htmlspecialchars($a['company'] ?? '-') ?></td>
                 <td>
-                    <a href="admin_edit_company_admin.php?id=<?= urlencode($a['id']) ?>">✏️ Düzenle</a>
+                    <a href="edit_company_admin.php?id=<?= urlencode($a['id']) ?>">✏️ Düzenle</a>
                     </td>
             </tr>
         <?php endforeach; ?>

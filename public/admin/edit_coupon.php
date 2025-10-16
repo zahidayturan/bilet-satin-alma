@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
 <h2>✏️ Kupon Düzenle</h2>
-<a href="admin_coupons.php">← Kupon Listesine Dön</a>
+<a href="coupons.php">← Kupon Listesine Dön</a>
 <hr>
 
 <?php if ($success): ?><div style="color:green;padding:10px;border:1px solid green;background-color:#e6ffe6;"><?= htmlspecialchars($success) ?></div><?php endif; ?>
