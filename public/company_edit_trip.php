@@ -1,54 +1,60 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';
 requireRole(['company']);
-require_once __DIR__ . '/../includes/db.php';
+
+require_once __DIR__ . '/../includes/functions.php';
 
 $company_id = $_SESSION['user']['company_id'];
 $id = $_GET['id'] ?? null;
+$errorMsg = '';
 
-// Mevcut sefer bilgisi
-$stmt = $pdo->prepare("SELECT * FROM Trips WHERE id=? AND company_id=?");
-$stmt->execute([$id, $company_id]);
-$trip = $stmt->fetch(PDO::FETCH_ASSOC);
-if (!$trip) die("Sefer bulunamadı");
-
-// Dolu koltuk sayısını hesapla (aktif biletler üzerinden)
-$stmt = $pdo->prepare("
-    SELECT COUNT(DISTINCT bs.seat_number) AS dolu_koltuk
-    FROM Booked_Seats bs
-    JOIN Tickets t ON bs.ticket_id = t.id
-    WHERE t.trip_id = ? AND t.status = 'active'
-");
-$stmt->execute([$id]);
-$dolu_koltuk = (int)$stmt->fetch(PDO::FETCH_ASSOC)['dolu_koltuk'];
-
-// Güncelleme işlemi
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $new_capacity = (int)$_POST['capacity'];
-
-    // Kapasite dolu koltuk sayısından küçük olamaz
-    if ($new_capacity < $dolu_koltuk) {
-        die("❌ Hata: Kapasite dolu koltuk sayısından (" . $dolu_koltuk . ") az olamaz!");
-    }
-
-    $stmt = $pdo->prepare("
-        UPDATE Trips
-        SET departure_city=?, destination_city=?, departure_time=?, arrival_time=?, price=?, capacity=?
-        WHERE id=? AND company_id=?
-    ");
-    $stmt->execute([
-        $_POST['departure_city'],
-        $_POST['destination_city'],
-        $_POST['departure_time'],
-        $_POST['arrival_time'],
-        $_POST['price'],
-        $new_capacity,
-        $_POST['id'],
-        $company_id
-    ]);
-
-    header('Location: company_trips.php?updated=1');
+// 1. Mevcut sefer bilgisini getir
+$trip = getTripDetailsForCompany($id, $company_id);
+if (!$trip) {
+    // Ölmek yerine daha güvenli bir yönlendirme yapabiliriz.
+    header('Location: company_trips.php?error=' . urlencode('Düzenlenecek sefer bulunamadı veya size ait değil.'));
     exit;
+}
+
+// 2. Dolu koltuk sayısını hesapla
+$dolu_koltuk = getBookedSeatCountForTrip($id);
+
+// 3. Güncelleme işlemi
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    
+    // Güvenlik için POST edilen ID'yi tekrar kontrol ediyoruz (zorunlu değil ama iyi pratik)
+    $post_id = $_POST['id'] ?? null; 
+
+    // Güncelleme verilerini hazırlıyoruz
+    $update_data = [
+        'departure_city' => $_POST['departure_city'],
+        'destination_city' => $_POST['destination_city'],
+        'departure_time' => $_POST['departure_time'],
+        'arrival_time' => $_POST['arrival_time'],
+        'price' => $_POST['price'],
+        'capacity' => $_POST['capacity'],
+    ];
+
+    // Güncelleme fonksiyonunu çağır ve sonucu al
+    $result = updateTripDetails($post_id, $company_id, $update_data, $dolu_koltuk);
+
+    if ($result['success']) {
+        // Başarılı yönlendirme
+        header('Location: company_trips.php?success=' . urlencode($result['message'] ?? 'Sefer başarıyla güncellendi.'));
+        exit;
+    } else {
+        // Hata durumunda mesajı kaydet ve formu yeniden göster
+        $errorMsg = $result['message'];
+        
+        // Hata durumunda formu doldurmak için $trip dizisini POST verileriyle güncelleyebiliriz
+        // Kullanıcının girdiği verilerin kaybolmaması için:
+        $trip['departure_city'] = $update_data['departure_city'];
+        $trip['destination_city'] = $update_data['destination_city'];
+        $trip['departure_time'] = $update_data['departure_time'];
+        $trip['arrival_time'] = $update_data['arrival_time'];
+        $trip['price'] = $update_data['price'];
+        $trip['capacity'] = $update_data['capacity'];
+    }
 }
 ?>
 
@@ -57,11 +63,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
   <meta charset="UTF-8">
   <title>Sefer Düzenle</title>
+  <style>
+    .error { color: red; border: 1px solid red; padding: 10px; margin-bottom: 15px; background-color: #ffdddd; }
+  </style>
 </head>
 <body>
 <h2>✏️ Sefer Düzenle</h2>
 <a href="company_trips.php">← Geri</a>
 <hr>
+
+<?php if ($errorMsg): ?>
+    <div class="error">❌ <?= htmlspecialchars($errorMsg) ?></div>
+<?php endif; ?>
 
 <p><strong>Dolu Koltuk Sayısı:</strong> <?= $dolu_koltuk ?> / <?= htmlspecialchars($trip['capacity']) ?></p>
 
