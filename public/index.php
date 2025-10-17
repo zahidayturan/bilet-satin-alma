@@ -18,8 +18,8 @@ require_once __DIR__ . '/../includes/header.php';
       <span>Admin - Hoş geldin, <strong><?= htmlspecialchars($_SESSION['user']['full_name']) ?></strong></span> |
       <a href="profile.php">Profilim</a> |
       <a href="admin/panel.php">Admin Paneli</a> |
-      <a href="admin/firmas.php">Firmalar</a> |
-      <a href="admin/firma_admin.php">Firma Adminleri</a> |
+      <a href="admin/show_companies.php">Firmalar</a> |
+      <a href="admin/show_company_admins.php">Firma Adminleri</a> |
       <a href="admin/coupons.php">Bütün Kuponlar</a> |
       <a href="logout.php">Oturumu Kapat</a>
     <?php elseif ($role === 'company'): ?>
@@ -55,7 +55,7 @@ require_once __DIR__ . '/../includes/header.php';
 
 <?php if ($trips): ?>
   <h2>Aktif Seferler</h2>
-  <table border="1" cellpadding="8" cellspacing="0" style="width:100%;border-collapse:collapse;">
+  <table>
     <tr>
       <th>Firma</th>
       <th>Kalkış</th>
@@ -88,7 +88,7 @@ require_once __DIR__ . '/../includes/header.php';
     <?php endforeach; ?>
   </table>
 <?php else: ?>
-  <p>Aktif sefer bulunamadı.</p>
+  <p>Uygun sefer bulunamadı</p>
 <?php endif; ?>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

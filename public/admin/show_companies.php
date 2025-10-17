@@ -9,7 +9,7 @@ $successMsg = '';
 // Firma ekleme
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add'])) {
     $name = trim($_POST['name']);
-    $logo = trim($_POST['logo_path'] ?? ''); // logo_path boşsa bile hata vermemesi için
+    $logo = trim($_POST['logo_path'] ?? '');
     
     if (addBusCompany($name, $logo)) {
         $successMsg = "Firma başarıyla eklendi. ✅";

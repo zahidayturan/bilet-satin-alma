@@ -104,9 +104,20 @@ button:hover {
     background: #2980b9;
 }
 
-.container { max-width: 600px; margin: auto; background: #f8f8f8; padding: 20px; border-radius: 10px; }
+.container { 
+    max-width: 600px;
+    margin: auto;
+    background: #f8f8f8;
+    padding: 20px;
+    border-radius: 10px;
+}
 
-.info { background: #fff; padding: 10px 20px; border-radius: 6px; margin-bottom: 20px; }
+.info {
+    background: #fff;
+    padding: 10px 20px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
 
 label {
     display: block;

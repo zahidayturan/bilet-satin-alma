@@ -75,7 +75,7 @@ require_once __DIR__ . '/../../includes/header.php';
             // İptal linki, şirketin bilet iptal etme iş mantığına göre gösterilir
             if ($t['status'] === 'active' && $hoursLeft > 1): 
             ?>
-              <a href="cancel_ticket.php?id=<?= urlencode($t['ticket_id']) ?>"
+              <a href="cancel_ticket_process.php?id=<?= urlencode($t['ticket_id']) ?>"
                  onclick="return confirm('Bu bileti iptal edip kullanıcıya iade yapmak istediğinize emin misiniz?')">
                  ❌ İptal Et
               </a>

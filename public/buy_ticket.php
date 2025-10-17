@@ -188,7 +188,7 @@ document.getElementById('applyCoupon').addEventListener('click', () => {
   if (!code) return alert('Kupon kodu girin.');
   if (appliedCoupon) return alert('Zaten bir kupon uygulanmış.');
 
-  fetch(`check_coupon.php?trip_id=<?= $trip_id ?>&code=${encodeURIComponent(code)}`)
+  fetch(`check_coupon_process.php?trip_id=<?= $trip_id ?>&code=${encodeURIComponent(code)}`)
     .then(r => r.json())
     .then(data => {
       if (data.valid) {

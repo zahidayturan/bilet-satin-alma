@@ -61,7 +61,7 @@ require_once __DIR__ . '/../includes/header.php';
           <?php
             $hoursLeft = (strtotime($t['departure_time']) - time()) / 3600;
             if ($t['status'] === 'active' && $hoursLeft > 1): ?>
-              <a href="cancel_ticket.php?id=<?= urlencode($t['ticket_id']) ?>" class="cancel-link" onclick="return confirm('Bu bileti iptal etmek istediğinizden emin misiniz? Yapılan iade bakiyenize eklenecektir.')">İptal Et</a> |
+              <a href="cancel_ticket_process.php?id=<?= urlencode($t['ticket_id']) ?>" class="cancel-link" onclick="return confirm('Bu bileti iptal etmek istediğinizden emin misiniz? Yapılan iade bakiyenize eklenecektir.')">İptal Et</a> |
           <?php endif; ?>
           <a href="download_ticket.php?id=<?= urlencode($t['ticket_id']) ?>">PDF İndir</a>
         </td>

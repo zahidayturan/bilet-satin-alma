@@ -11,8 +11,8 @@ require_once __DIR__ . '/../../includes/header.php';
 
 <nav>
     <ul>
-        <li><a href="firmas.php">🏢 Firma Yönetimi</a></li>
-        <li><a href="firma_admin.php">👤 Firma Admin Yönetimi</a></li>
+        <li><a href="show_companies.php">🏢 Firma Yönetimi</a></li>
+        <li><a href="show_company_admins.php">👤 Firma Admin Yönetimi</a></li>
         <li><a href="coupons.php">🎟️ Kupon Yönetimi</a></li>
         <li><a href="../index.php">← Ana Sayfa</a></li>
         <li><a href="../logout.php">Çıkış Yap</a></li>
