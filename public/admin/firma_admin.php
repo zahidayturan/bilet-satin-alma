@@ -1,8 +1,7 @@
 <?php
-require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../../includes/auth.php';
 requireRole(['admin']);
-
-require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../../includes/functions.php';
 
 $errorMsg = '';
 $successMsg = '';
@@ -27,15 +26,11 @@ $companies = getCompanyListForDropdown();
 
 // Tüm firma adminleri
 $admins = getAllCompanyAdmins();
+
+$page_title = "Bana1Bilet - Sistem Yönetimi";
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <title>Firma Admin Yönetimi</title>
-</head>
-<body>
 <h2>👤 Firma Admin Yönetimi</h2>
 <a href="panel.php">← Admin Paneli</a>
 <hr>
@@ -85,5 +80,7 @@ $admins = getAllCompanyAdmins();
         <?php endforeach; ?>
     <?php endif; ?>
 </table>
-</body>
-</html>
+
+<?php
+require_once __DIR__ . '/../../includes/footer.php';
+?>

@@ -1,13 +1,12 @@
 <?php
-require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../../includes/auth.php';
 requireRole(['admin']);
-
-require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../../includes/functions.php';
 
 $errorMsg = '';
 $successMsg = '';
 
-// ✅ Yeni kupon ekleme
+// Yeni kupon ekleme
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code'])) {
     $code = $_POST['code'];
     $discount = floatval($_POST['discount']);
@@ -22,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code'])) {
     }
 }
 
-// ❌ Kupon silme
+// Kupon silme
 if (isset($_GET['delete'])) {
     if (deleteCoupon($_GET['delete'])) {
         $successMsg = "Kupon başarıyla silindi. 🗑️";
@@ -31,20 +30,16 @@ if (isset($_GET['delete'])) {
     }
 }
 
-// 🚍 Firma listesi
+// Firma listesi
 $companies = getCompanyListForDropdown();
 
-// 📦 Kuponları ve kullanım sayılarını getir
+// Kuponları ve kullanım sayılarını getir
 $coupons = getAllCouponsWithUsage();
+
+$page_title = "Bana1Bilet - Sistem Yönetimi";
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <title>Kupon Yönetimi</title>
-</head>
-<body>
 <h2>🎟️ Kupon Yönetimi (Admin)</h2>
 <a href="panel.php">← Admin Paneli</a>
 <hr>
@@ -114,5 +109,6 @@ $coupons = getAllCouponsWithUsage();
     <?php endif; ?>
 </table>
 
-</body>
-</html>
+<?php
+require_once __DIR__ . '/../../includes/footer.php';
+?>

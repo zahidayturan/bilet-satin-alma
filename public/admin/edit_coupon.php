@@ -1,8 +1,7 @@
 <?php
-require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../../includes/auth.php';
 requireRole(['admin']);
-
-require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../../includes/functions.php';
 
 $id = $_GET['id'] ?? null;
 if (!$id) die("Geçersiz kupon ID.");
@@ -36,16 +35,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Form, güncel kupon verisi ($coupon) ile doldurulur.
+
+$page_title = "Bana1Bilet - Sistem Yönetimi";
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <title>Kupon Düzenle</title>
-</head>
-<body>
 <h2>✏️ Kupon Düzenle</h2>
 <a href="coupons.php">← Kupon Listesine Dön</a>
 <hr>
@@ -80,5 +74,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <button type="submit">Kaydet</button>
 </form>
 
-</body>
-</html>
+<?php
+require_once __DIR__ . '/../../includes/footer.php';
+?>

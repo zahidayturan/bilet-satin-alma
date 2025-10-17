@@ -24,24 +24,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: trips.php?success=' . urlencode($result['message']));
         exit;
     } else {
-        // Hata durumunda mesajı kaydet ve formu yeniden göster
         $errorMsg = $result['message'];
-        
-        // Hata durumunda kullanıcının girdiği verileri formda tutmak için $_POST'u kullanırız.
     }
 }
+
+$page_title = "Bana1Bilet - Firma Yönetimi";
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <title>Yeni Sefer Ekle</title>
-    <style>
-        .error { color: red; border: 1px solid red; padding: 10px; margin-bottom: 15px; background-color: #ffdddd; }
-    </style>
-</head>
-<body>
 <h2>+ Yeni Sefer Ekle</h2>
 <a href="trips.php">← Geri</a>
 <hr>
@@ -57,5 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <label>Kapasite:</label> <input type="number" name="capacity" value="<?= htmlspecialchars($_POST['capacity'] ?? '') ?>" min="1" required><br><br>
   <button type="submit">Kaydet</button>
 </form>
-</body>
-</html>
+
+<?php
+require_once __DIR__ . '/../../includes/footer.php';
+?>

@@ -9,7 +9,7 @@ $company_id = $_SESSION['user']['company_id'];
 $errorMsg = '';
 $successMsg = '';
 
-// 🧾 Sefer silme işlemi (iptal + iade)
+// Sefer silme işlemi (iptal + iade)
 if (isset($_GET['delete'])) {
     $trip_id = $_GET['delete'];
     
@@ -30,23 +30,14 @@ if (isset($_GET['success'])) {
     $successMsg = htmlspecialchars($_GET['success']);
 }
 
-
-// ✳️ Sefer listesi (koltuk doluluk bilgisiyle)
+// Sefer listesi (koltuk doluluk bilgisiyle)
 $trips = getCompanyTripsWithSoldCount($company_id);
+
+$page_title = "Bana1Bilet - Firma Yönetimi";
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <title>Sefer Yönetimi</title>
-    <style>
-        table { border-collapse: collapse; width: 100%; }
-        th, td { padding: 8px; border: 1px solid #aaa; text-align: center; }
-        th { background-color: #f4f4f4; }
-        .actions a { margin: 0 5px; }
-    </style>
-</head>
+
 <body>
 <h2>🚌 Sefer Yönetimi</h2>
 <a href="panel.php">← Geri</a>
@@ -93,5 +84,7 @@ $trips = getCompanyTripsWithSoldCount($company_id);
     <?php endforeach; ?>
 <?php endif; ?>
 </table>
-</body>
-</html>
+
+<?php
+require_once __DIR__ . '/../../includes/footer.php';
+?>

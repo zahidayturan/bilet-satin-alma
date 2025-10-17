@@ -1,8 +1,7 @@
 <?php
-require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../../includes/auth.php';
 requireRole(['admin']);
-
-require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../../includes/functions.php';
 
 $errorMsg = '';
 $successMsg = '';
@@ -33,15 +32,11 @@ if (isset($_GET['delete'])) {
 
 // Tüm firmaları çekme
 $companies = getAllBusCompanies();
+
+$page_title = "Bana1Bilet - Sistem Yönetimi";
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <title>Firma Yönetimi</title>
-</head>
-<body>
 <h2>🏢 Firma Yönetimi</h2>
 <a href="panel.php">← Admin Paneli</a>
 <hr>
@@ -83,5 +78,7 @@ $companies = getAllBusCompanies();
         <?php endforeach; ?>
     <?php endif; ?>
 </table>
-</body>
-</html>
+
+<?php
+require_once __DIR__ . '/../../includes/footer.php';
+?>

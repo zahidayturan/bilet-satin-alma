@@ -1,7 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';
 requireRole(['user']);
-
 require_once __DIR__ . '/../includes/functions.php';
 
 $user_id = $_SESSION['user']['id'];
@@ -9,37 +8,15 @@ $user_id = $_SESSION['user']['id'];
 // 1. Geçmiş biletleri "expired" yapma işlemini fonksiyona devret
 expireUserPastTickets($user_id);
 
-
 // 2. Biletleri detaylı çekme işlemini fonksiyona devret
 $tickets = getUserTicketsDetails($user_id);
 
-
-// Mesaj Yönetimi
 $successMsg = $_GET['success'] ?? '';
 $errorMsg = $_GET['error'] ?? '';
 $isPurchased = isset($_GET['purchased']); // Yeni satın alma durumu için
 
-
+require_once __DIR__ . '/../includes/header.php';
 ?>
-
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <title>Biletlerim</title>
-  <style>
-    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-    th { background: #f0f0f0; }
-    tr:nth-child(even) { background: #fafafa; }
-    .expired { color: gray; }
-    .cancel-link { color: red; }
-    .message { padding: 10px; margin-bottom: 15px; border-radius: 4px; font-weight: bold; }
-    .success { color: #006600; background-color: #ddffdd; border: 1px solid #aaffaa; }
-    .error { color: #880000; background-color: #ffdddd; border: 1px solid #ffaaaa; }
-  </style>
-</head>
-<body>
 
 <h2>🎫 Biletlerim</h2>
 <a href="index.php">← Ana Sayfa</a>
@@ -93,5 +70,6 @@ $isPurchased = isset($_GET['purchased']); // Yeni satın alma durumu için
   </table>
 <?php endif; ?>
 
-</body>
-</html>
+<?php
+require_once __DIR__ . '/../includes/footer.php';
+?>

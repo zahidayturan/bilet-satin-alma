@@ -56,23 +56,12 @@ if (isset($_GET['error'])) {
 
 // Firma kuponlarını listele
 $coupons = getCompanyCoupons($company_id);
+
+$page_title = "Bana1Bilet - Firma Yönetimi";
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-<meta charset="UTF-8">
-<title>Firma Kupon Yönetimi</title>
-    <style>
-        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-        th { background-color: #f2f2f2; }
-        .message { padding: 10px; margin-bottom: 15px; border-radius: 4px; }
-        .error { color: #880000; background-color: #ffdddd; border: 1px solid #ffaaaa; }
-        .success { color: #006600; background-color: #ddffdd; border: 1px solid #aaffaa; }
-    </style>
-</head>
-<body>
+
 <h2>🎟️ Firma Kupon Yönetimi</h2>
 <a href="panel.php">← Geri</a>
 <hr>
@@ -138,5 +127,6 @@ $coupons = getCompanyCoupons($company_id);
     </table>
 <?php endif; ?>
 
-</body>
-</html>
+<?php
+require_once __DIR__ . '/../../includes/footer.php';
+?>

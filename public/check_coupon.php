@@ -13,7 +13,6 @@ if (!$trip_id || !$code) {
     exit;
 }
 
-// Tüm iş mantığını fonksiyona devret
 $result = validateCouponAndCalculatePrice($trip_id, $code);
 
 // Fonksiyondan dönen sonucu JSON olarak çıktıla

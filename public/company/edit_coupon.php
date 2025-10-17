@@ -37,8 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($result['success']) {
         $success = $result['message'];
         
-        // Başarılı güncelleme sonrası kuponun yeni bilgilerini çekiyoruz ki formda görüntülensin.
-        // Eğer güncelleme $coupon'ı değiştirseydi buna gerek kalmazdı, ancak PDO'dan tekrar çekmek en güvenli yol.
+        // Başarılı güncelleme sonrası kuponun yeni bilgilerini çekiyoruz ki formda görüntülensin
         $coupon = getCouponDetailsForCompany($coupon_id, $company_id); 
         
     } else {
@@ -50,19 +49,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $coupon['expire_date'] = $update_data['expire_date'];
     }
 }
+
+$page_title = "Bana1Bilet - Firma Yönetimi";
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <title>Kupon Düzenle</title>
-    <style>
-        .error { color: red; border: 1px solid red; padding: 10px; margin-bottom: 15px; background-color: #ffdddd; }
-        .success { color: green; border: 1px solid green; padding: 10px; margin-bottom: 15px; background-color: #ddffdd; }
-    </style>
-</head>
-<body>
 <h2>✏️ Kupon Düzenle</h2>
 <a href="coupons.php">← Kupon Listesine Dön</a>
 <hr>
@@ -85,5 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   <button type="submit">Kaydet</button>
 </form>
-</body>
-</html>
+
+<?php
+require_once __DIR__ . '/../../includes/footer.php';
+?>

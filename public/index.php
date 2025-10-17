@@ -1,31 +1,16 @@
 <?php
 require_once __DIR__ . '/../includes/db.php';
-
-require_once __DIR__ . '/../includes/functions.php'; // Yeni fonksiyonlar için
+require_once __DIR__ . '/../includes/functions.php';
 
 $from = $_GET['from'] ?? '';
 $to = $_GET['to'] ?? '';
 $date = $_GET['date'] ?? '';
 
-// İş mantığını fonksiyona devret
 $trips = searchActiveTrips($from, $to, $date, 10);
+
+require_once __DIR__ . '/../includes/header.php';
 ?>
 
-<?php 
-// Header ve Footer, dış dosyalardan çağrıldığı için HTML'in içinde kalabilir.
-require_once __DIR__ . '/../includes/header.php'; 
-?>
-
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <title>Otobüs Bileti Satın Alma</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-<nav style="margin-bottom: 15px;">
 <?php if (isLoggedIn()): ?>
   <div style="background:#f3f3f3;padding:10px;border-radius:8px;">
     <?php $role = $_SESSION['user']['role'] ?? ''; ?>
@@ -82,7 +67,7 @@ require_once __DIR__ . '/../includes/header.php';
     </tr>
     <?php foreach ($trips as $trip): ?>
       <?php
-        // Sefer süresi hesaplama (Sunum mantığı)
+        // Sefer süresi hesaplama
         $departure_time = strtotime($trip['departure_time']);
         $arrival_time = strtotime($trip['arrival_time']);
         $duration = $arrival_time - $departure_time;
@@ -105,8 +90,5 @@ require_once __DIR__ . '/../includes/header.php';
 <?php else: ?>
   <p>Aktif sefer bulunamadı.</p>
 <?php endif; ?>
-
-</body>
-</html>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

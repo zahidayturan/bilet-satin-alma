@@ -18,19 +18,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $name_value = htmlspecialchars($_POST['full_name'] ?? ''); 
 $email_value = htmlspecialchars($_POST['email'] ?? '');
+
+$page_title = "Bana1Bilet - Kayıt Ol";
+require_once __DIR__ . '/../includes/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <title>Kayıt Ol</title>
-    <style>
-        .message { padding: 10px; margin-bottom: 15px; border-radius: 4px; font-weight: bold; }
-        .error { color: #880000; background-color: #ffdddd; border: 1px solid #ffaaaa; }
-    </style>
-</head>
-<body>
 <h2>Kayıt Ol</h2>
 <?php if ($message): ?>
     <div class="message error">❌ <?= htmlspecialchars($message) ?></div>
@@ -49,5 +41,7 @@ $email_value = htmlspecialchars($_POST['email'] ?? '');
     <button type="submit">Kayıt Ol</button>
 </form>
 <p>Zaten hesabın var mı? <a href="login.php">Giriş Yap</a></p>
-</body>
-</html>
+
+<?php
+require_once __DIR__ . '/../includes/footer.php';
+?>

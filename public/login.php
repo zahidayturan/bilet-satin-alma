@@ -14,19 +14,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $message = "E-posta veya şifre hatalı!";
     }
 }
+
+$page_title = "Bana1Bilet - Giriş Yap";
+require_once __DIR__ . '/../includes/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <title>Giriş Yap</title>
-    <style>
-        .message { padding: 10px; margin-bottom: 15px; border-radius: 4px; font-weight: bold; }
-        .error { color: #880000; background-color: #ffdddd; border: 1px solid #ffaaaa; }
-    </style>
-</head>
-<body>
 <h2>Giriş Yap</h2>
 <?php if ($message): ?>
     <div class="message error">❌ <?= htmlspecialchars($message) ?></div>
@@ -42,5 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <button type="submit">Giriş Yap</button>
 </form>
 <p>Hesabın yok mu? <a href="register.php">Kayıt Ol</a></p>
-</body>
-</html>
+
+<?php
+require_once __DIR__ . '/../includes/footer.php';
+?>

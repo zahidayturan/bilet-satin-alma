@@ -1,8 +1,7 @@
 <?php
-require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../../includes/auth.php';
 requireRole(['admin']);
-
-require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../../includes/functions.php';
 
 $id = $_GET['id'] ?? null;
 if (!$id) die("Geçersiz ID");
@@ -28,15 +27,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errorMsg = "Güncelleme hatası! Veritabanı sorunu oluştu. ❌";
     }
 }
+
+$page_title = "Bana1Bilet - Sistem Yönetimi";
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <title>Firma Düzenle</title>
-</head>
-<body>
 <h2>✏️ Firma Düzenle</h2>
 <a href="firmas.php">← Geri Dön</a>
 <hr>
@@ -58,5 +53,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <button type="submit">Kaydet</button>
 </form>
 
-</body>
-</html>
+<?php
+require_once __DIR__ . '/../../includes/footer.php';
+?>

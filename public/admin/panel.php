@@ -1,17 +1,12 @@
 <?php
-require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../../includes/auth.php';
 requireRole(['admin']);
+
+$page_title = "Bana1Bilet - Sistem Yönetim Paneli";
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <title>Admin Paneli</title>
-</head>
-<body>
-<h1>🛠️ Admin Paneli</h1>
-
+<h3>🛠️ Admin Paneli</h1>
 <p>Hoş geldin, <?= htmlspecialchars($_SESSION['user']['full_name']) ?>!</p>
 
 <nav>
@@ -24,5 +19,6 @@ requireRole(['admin']);
     </ul>
 </nav>
 
-</body>
-</html>
+<?php
+require_once __DIR__ . '/../../includes/footer.php';
+?>

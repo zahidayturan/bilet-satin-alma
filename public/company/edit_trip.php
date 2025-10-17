@@ -43,10 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: trips.php?success=' . urlencode($result['message'] ?? 'Sefer başarıyla güncellendi.'));
         exit;
     } else {
-        // Hata durumunda mesajı kaydet ve formu yeniden göster
         $errorMsg = $result['message'];
-        
-        // Hata durumunda formu doldurmak için $trip dizisini POST verileriyle güncelleyebiliriz
         // Kullanıcının girdiği verilerin kaybolmaması için:
         $trip['departure_city'] = $update_data['departure_city'];
         $trip['destination_city'] = $update_data['destination_city'];
@@ -56,18 +53,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $trip['capacity'] = $update_data['capacity'];
     }
 }
+
+$page_title = "Bana1Bilet - Firma Yönetimi";
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <title>Sefer Düzenle</title>
-  <style>
-    .error { color: red; border: 1px solid red; padding: 10px; margin-bottom: 15px; background-color: #ffdddd; }
-  </style>
-</head>
-<body>
 <h2>✏️ Sefer Düzenle</h2>
 <a href="trips.php">← Geri</a>
 <hr>
@@ -102,5 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   <button type="submit">Kaydet</button>
 </form>
-</body>
-</html>
+
+<?php
+require_once __DIR__ . '/../../includes/footer.php';
+?>

@@ -25,19 +25,14 @@ if (isset($trip['error'])) {
 // Dolu koltuklar
 $bookedSeats = getBookedSeatsForTrip($trip_id);
 $capacity = (int)$trip['capacity'];
+
+require_once __DIR__ . '/../includes/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="tr">
 <head>
   <meta charset="UTF-8">
   <title>Bilet Satın Al</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 30px;
-      background: #f8f8f8;
-    }
     .container {
       background: white;
       padding: 20px;
@@ -221,5 +216,7 @@ document.getElementById('removeCoupon').addEventListener('click', () => {
   document.getElementById('activeCoupon').style.display = 'none';
 });
 </script>
-</body>
-</html>
+
+<?php
+require_once __DIR__ . '/../includes/footer.php';
+?>

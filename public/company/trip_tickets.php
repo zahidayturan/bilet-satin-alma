@@ -37,22 +37,11 @@ if (isset($_GET['success'])) {
 
 // 3. Seferin biletlerini getir
 $tickets = getTripTickets($trip_id);
+
+$page_title = "Bana1Bilet - Firma Yönetimi";
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <title><?= htmlspecialchars($trip['departure_city']) ?> → <?= htmlspecialchars($trip['destination_city']) ?> Biletleri</title>
-    <style>
-        table { border-collapse: collapse; width: 100%; }
-        th, td { padding: 8px; border: 1px solid #ccc; text-align: center; }
-        th { background-color: #eee; }
-        .success { color: green; margin: 10px 0; }
-        .error { color: red; margin: 10px 0; }
-    </style>
-</head>
-<body>
 <h2>🎟️ Bilet Listesi - <?= htmlspecialchars($trip['departure_city']) ?> → <?= htmlspecialchars($trip['destination_city']) ?></h2>
 <a href="trips.php">← Geri</a>
 <hr>
@@ -77,7 +66,6 @@ $tickets = getTripTickets($trip_id);
 <?php if ($tickets): ?>
     <?php foreach ($tickets as $tk): ?>
         <?php 
-            // Kalkış zamanı kontrolü, iş mantığı olarak bu sayfada kalır.
             $hoursLeft = (strtotime($tk['departure_time']) - time()) / 3600; 
         ?>
     <tr>
@@ -102,5 +90,7 @@ $tickets = getTripTickets($trip_id);
     <tr><td colspan="6" style="text-align:center;">Bu sefere ait bilet bulunamadı.</td></tr>
 <?php endif; ?>
 </table>
-</body>
-</html>
+
+<?php
+require_once __DIR__ . '/../../includes/footer.php';
+?>

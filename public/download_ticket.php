@@ -41,7 +41,7 @@ $seatStmt->execute([$ticket_id]);
 $seats = $seatStmt->fetchAll(PDO::FETCH_COLUMN);
 $seatList = implode(', ', $seats);
 
-$mpdf = new Mpdf(['default_font' => 'dejavusans']); // Türkçe karakter dostu font
+$mpdf = new Mpdf(['default_font' => 'dejavusans']); // Türkçe karakter
 
 $html = "
 <h2 style='text-align:center;'>Otobüs Bileti</h2>

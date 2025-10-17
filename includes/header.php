@@ -1,13 +1,14 @@
 <?php
-// header.php — sayfa başı
 ?>
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Otobüs Bileti Sistemi</title>
+    <title><?= $page_title ?? 'Bana1Bilet' ?></title>
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 <header>
-    <h2>Otobüs Bileti Satın Alma Platformu</h2>
+    <h2>Bana1Bilet</h2>
 </header>

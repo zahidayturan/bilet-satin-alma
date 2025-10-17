@@ -1,17 +1,13 @@
 <?php
 require_once __DIR__ . '/../../includes/auth.php';
 requireRole(['company']);
+
+$page_title = "Bana1Bilet - Firma Yönetim Paneli";
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <title>Firma Admin Paneli</title>
-</head>
-<body>
-<h1>🏢 Firma Admin Paneli</h1>
-<p>Hoşgeldin, <?= htmlspecialchars($_SESSION['user']['full_name']) ?></p>
+<h3>🏢 Firma Yönetim Paneli</h1>
+<p>Hoş geldin, <?= htmlspecialchars($_SESSION['user']['full_name']) ?></p>
 
 <nav>
   <ul>
@@ -23,5 +19,6 @@ requireRole(['company']);
   </ul>
 </nav>
 
-</body>
-</html>
+<?php
+require_once __DIR__ . '/../../includes/footer.php';
+?>

@@ -1,8 +1,8 @@
 <?php
-require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../../includes/auth.php';
 requireRole(['admin']);
 
-require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../../includes/functions.php';
 
 $id = $_GET['id'] ?? null;
 if (!$id) die("Geçersiz ID");
@@ -56,15 +56,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+
+$page_title = "Bana1Bilet - Sistem Yönetimi";
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <title>Firma Admin Düzenle</title>
-</head>
-<body>
 <h2>✏️ Firma Admin Düzenle</h2>
 <a href="firma_admin.php">← Geri Dön</a>
 <hr>
@@ -115,5 +111,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <button type="submit" name="change_password">Şifreyi Güncelle</button>
 </form>
 
-</body>
-</html>
+<?php
+require_once __DIR__ . '/../../includes/footer.php';
+?>

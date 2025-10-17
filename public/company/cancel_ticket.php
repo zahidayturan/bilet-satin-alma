@@ -25,5 +25,4 @@ if ($result['success']) {
     header('Location: tickets.php?error=' . urlencode($result['message']));
     exit;
 }
-// Bu dosya artık HTML içeriği döndürmez.
 ?>

@@ -1,37 +1,21 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';
 
-/**
- * Yeni bir otobüs firması ekler.
- *
- * @param string $name Firma adı.
- * @param string $logo Logo yolu (isteğe bağlı).
- * @return bool Ekleme başarılıysa true, aksi takdirde false.
- */
 function addBusCompany(string $name, string $logo = ''): bool
 {
-    global $pdo; // $pdo nesnesine erişim
+    global $pdo;
     try {
         $stmt = $pdo->prepare("INSERT INTO Bus_Company (id, name, logo_path, created_at)
                                VALUES (:id, :name, :logo, datetime('now'))");
         return $stmt->execute([':id' => uniqid('cmp_'), ':name' => $name, ':logo' => $logo]);
     } catch (PDOException $e) {
-        // Hata kaydı veya global hata mesajı ayarlama burada yapılabilir.
-        // Şimdilik sadece false döndürüyoruz.
         return false;
     }
 }
 
-/**
- * Belirtilen ID'ye sahip otobüs firmasını siler.
- * Yabancı anahtar kısıtlamaları nedeniyle silme başarısız olabilir.
- *
- * @param string $id Silinecek firmanın ID'si.
- * @return array Sonuç dizisi: ['success' => bool, 'message' => string]
- */
 function deleteBusCompany(string $id): array
 {
-    global $pdo; // $pdo nesnesine erişim
+    global $pdo;
     try {
         $stmt = $pdo->prepare("DELETE FROM Bus_Company WHERE id = ?");
         $stmt->execute([$id]);
@@ -39,7 +23,6 @@ function deleteBusCompany(string $id): array
         if ($stmt->rowCount() > 0) {
             return ['success' => true, 'message' => "Firma başarıyla silindi."];
         } else {
-             // Firmanın bulunamadığı durumu
             return ['success' => false, 'message' => "Silinecek firma bulunamadı."];
         }
 
@@ -55,15 +38,9 @@ function deleteBusCompany(string $id): array
     }
 }
 
-/**
- * Tüm otobüs firmalarını en son oluşturulanlara göre sıralayarak getirir.
- *
- * @return array Otobüs firmalarının listesi.
- */
 function getAllBusCompanies(): array
 {
-    global $pdo; // $pdo nesnesine erişim
-    // Sorgu sırasında hata olması durumunda boş bir dizi döndürmek güvenlidir.
+    global $pdo;
     try {
         return $pdo->query("SELECT * FROM Bus_Company ORDER BY created_at DESC")->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
@@ -71,11 +48,6 @@ function getAllBusCompanies(): array
     }
 }
 
-/**
- * Otobüs firmalarının sadece ID ve isim listesini getirir (dropdown'lar için).
- *
- * @return array Firma listesi.
- */
 function getCompanyListForDropdown(): array
 {
     global $pdo;
@@ -86,20 +58,10 @@ function getCompanyListForDropdown(): array
     }
 }
 
-/**
- * Yeni bir firma yöneticisi (rolü 'company') oluşturur ve veritabanına kaydeder.
- *
- * @param string $fullName Yöneticinin tam adı.
- * @param string $email Yöneticinin e-posta adresi.
- * @param string $passwordCleartext Yöneticinin şifresi (hash'lenmeden önceki hali).
- * @param string $companyId Bağlı olduğu firmanın ID'si.
- * @return bool Ekleme başarılıysa true, aksi takdirde false.
- */
 function addCompanyAdmin(string $fullName, string $email, string $passwordCleartext, string $companyId): bool
 {
     global $pdo;
     
-    // Şifreyi hash'le
     $passwordHashed = password_hash($passwordCleartext, PASSWORD_BCRYPT);
     
     try {
@@ -114,16 +76,10 @@ function addCompanyAdmin(string $fullName, string $email, string $passwordCleart
             ':cid' => $companyId
         ]);
     } catch (PDOException $e) {
-        // Hata kaydı burada yapılabilir (örn: e-posta benzersizliği hatası)
         return false;
     }
 }
 
-/**
- * Tüm firma yöneticilerini (rolü 'company') ve bağlı oldukları firma adlarını getirir.
- *
- * @return array Firma yöneticilerinin listesi.
- */
 function getAllCompanyAdmins(): array
 {
     global $pdo;
@@ -140,12 +96,6 @@ function getAllCompanyAdmins(): array
     }
 }
 
-/**
- * Belirtilen ID'ye sahip kuponun detaylarını getirir.
- *
- * @param string $couponId Kupon ID'si.
- * @return array|false Kupon bilgileri (dizi) veya bulunamazsa false.
- */
 function getCouponById(string $couponId): array|false
 {
     global $pdo;
@@ -154,27 +104,14 @@ function getCouponById(string $couponId): array|false
         $stmt->execute([$couponId]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-        // Hata kaydı burada yapılabilir.
         return false;
     }
 }
 
-/**
- * Mevcut bir kuponun bilgilerini günceller.
- *
- * @param string $id Kupon ID'si.
- * @param string $code Kupon kodu.
- * @param float $discount İndirim yüzdesi.
- * @param int $usageLimit Kullanım limiti.
- * @param string $expireDate Son kullanma tarihi (YYYY-MM-DD).
- * @param string|null $companyId İsteğe bağlı, kuponun geçerli olduğu firma ID'si veya null.
- * @return bool Güncelleme başarılıysa true, aksi takdirde false.
- */
 function updateCoupon(string $id, string $code, float $discount, int $usageLimit, string $expireDate, ?string $companyId): bool
 {
     global $pdo;
 
-    // company_id null olarak ayarlanacaksa boş stringi null'a çevir
     $cid = $companyId ?: null; 
     
     try {
@@ -197,56 +134,33 @@ function updateCoupon(string $id, string $code, float $discount, int $usageLimit
             ':id' => $id
         ]);
     } catch (PDOException $e) {
-        // Hata durumunda loglama yapılabilir.
         return false;
     }
 }
 
-/**
- * Belirtilen ID'ye sahip otobüs firmasının detaylarını getirir.
- *
- * @param string $companyId Firma ID'si.
- * @return array|false Firma bilgileri (dizi) veya bulunamazsa false.
- */
 function getBusCompanyById(string $companyId): array|false
 {
-    global $pdo; // $pdo nesnesine erişim
+    global $pdo;
     try {
         $stmt = $pdo->prepare("SELECT * FROM Bus_Company WHERE id = ?");
         $stmt->execute([$companyId]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-        // Hata kaydı burada yapılabilir.
         return false;
     }
 }
 
-/**
- * Mevcut bir otobüs firmasının adını ve logosunu günceller.
- *
- * @param string $id Güncellenecek firmanın ID'si.
- * @param string $name Yeni firma adı.
- * @param string $logo Yeni logo yolu.
- * @return bool Güncelleme başarılıysa true, aksi takdirde false.
- */
 function updateBusCompany(string $id, string $name, string $logo = ''): bool
 {
-    global $pdo; // $pdo nesnesine erişim
+    global $pdo;
     try {
         $stmt = $pdo->prepare("UPDATE Bus_Company SET name=?, logo_path=? WHERE id=?");
         return $stmt->execute([$name, $logo, $id]);
     } catch (PDOException $e) {
-        // Hata durumunda loglama yapılabilir (örn: unique kısıtlaması).
         return false;
     }
 }
 
-/**
- * Belirtilen ID'ye sahip, rolü 'company' olan kullanıcının (Firma Admini) detaylarını getirir.
- *
- * @param string $userId Kullanıcı ID'si.
- * @return array|false Kullanıcı bilgileri (dizi) veya bulunamazsa false.
- */
 function getCompanyAdminById(string $userId): array|false
 {
     global $pdo;
@@ -259,15 +173,6 @@ function getCompanyAdminById(string $userId): array|false
     }
 }
 
-/**
- * Firma yöneticisinin ad, e-posta ve bağlı olduğu firmayı günceller.
- *
- * @param string $id Yöneticinin ID'si.
- * @param string $fullName Yeni ad soyad.
- * @param string $email Yeni e-posta.
- * @param string $companyId Yeni firma ID'si.
- * @return bool Güncelleme başarılıysa true, aksi takdirde false.
- */
 function updateCompanyAdminInfo(string $id, string $fullName, string $email, string $companyId): bool
 {
     global $pdo;
@@ -275,19 +180,10 @@ function updateCompanyAdminInfo(string $id, string $fullName, string $email, str
         $stmt = $pdo->prepare("UPDATE User SET full_name=?, email=?, company_id=? WHERE id=?");
         return $stmt->execute([trim($fullName), trim($email), $companyId, $id]);
     } catch (PDOException $e) {
-        // Benzersiz e-posta kısıtlaması gibi hatalar burada yakalanabilir.
         return false;
     }
 }
 
-/**
- * Belirtilen kullanıcının şifresini günceller.
- * Not: Bu fonksiyon sadece hash'lenmiş şifreyi kaydeder. Şifre kontrolü sayfa tarafında yapılmalıdır.
- *
- * @param string $id Yöneticinin ID'si.
- * @param string $newHashedPassword Yeni hash'lenmiş şifre.
- * @return bool Güncelleme başarılıysa true, aksi takdirde false.
- */
 function updateCompanyAdminPassword(string $id, string $newHashedPassword): bool
 {
     global $pdo;
@@ -299,21 +195,9 @@ function updateCompanyAdminPassword(string $id, string $newHashedPassword): bool
     }
 }
 
-/**
- * Yeni bir kupon oluşturur ve veritabanına kaydeder.
- *
- * @param string $code Kupon kodu (büyük harfe çevrilecek).
- * @param float $discount İndirim yüzdesi.
- * @param int $usageLimit Kullanım limiti.
- * @param string $expireDate Son kullanma tarihi (YYYY-MM-DD).
- * @param string|null $companyId İsteğe bağlı, kuponun geçerli olduğu firma ID'si veya null.
- * @return bool Ekleme başarılıysa true, aksi takdirde false.
- */
 function addCoupon(string $code, float $discount, int $usageLimit, string $expireDate, ?string $companyId): bool
 {
     global $pdo;
-    
-    // company_id null olarak ayarlanacaksa boş stringi null'a çevir
     $cid = $companyId ?: null; 
     
     try {
@@ -331,17 +215,10 @@ function addCoupon(string $code, float $discount, int $usageLimit, string $expir
             ':cid' => $cid
         ]);
     } catch (PDOException $e) {
-        // Kod benzersizliği hatası gibi durumlar için.
         return false;
     }
 }
 
-/**
- * Belirtilen ID'ye sahip kuponu siler.
- *
- * @param string $id Silinecek kuponun ID'si.
- * @return bool Silme başarılıysa true, aksi takdirde false.
- */
 function deleteCoupon(string $id): bool
 {
     global $pdo;
@@ -354,11 +231,6 @@ function deleteCoupon(string $id): bool
     }
 }
 
-/**
- * Tüm kuponları, bağlı oldukları firma adıyla ve kullanım sayılarıyla birlikte getirir.
- *
- * @return array Kupon listesi.
- */
 function getAllCouponsWithUsage(): array
 {
     global $pdo;
@@ -379,15 +251,6 @@ function getAllCouponsWithUsage(): array
     }
 }
 
-/**
- * Belirtilen firmaya ait seferi, biletleriyle birlikte iptal eder,
- * biletleri siler, koltukları serbest bırakır ve bilet ücretlerini
- * kullanıcılara iade eder (balance artışı). Tüm işlemler tek bir transaction içinde yapılır.
- *
- * @param string $tripId İptal edilecek seferin ID'si.
- * @param string $companyId İşlemi yapan firmanın ID'si (yetki kontrolü için).
- * @return array Sonuç dizisi: ['success' => bool, 'message' => string]
- */
 function cancelTripAndRefundTickets(string $tripId, string $companyId): array
 {
     global $pdo;
@@ -443,12 +306,6 @@ function cancelTripAndRefundTickets(string $tripId, string $companyId): array
     }
 }
 
-/**
- * Belirtilen firmaya ait tüm seferleri, satılan bilet sayısı ile birlikte getirir.
- *
- * @param string $companyId Firmanın ID'si.
- * @return array Seferlerin listesi.
- */
 function getCompanyTripsWithSoldCount(string $companyId): array
 {
     global $pdo;
@@ -471,13 +328,6 @@ function getCompanyTripsWithSoldCount(string $companyId): array
     }
 }
 
-/**
- * Belirtilen ID'ye sahip seferin, belirtilen firmaya ait olup olmadığını kontrol eder ve sefer detaylarını getirir.
- *
- * @param string $tripId Sefer ID'si.
- * @param string $companyId Firmanın ID'si (yetki kontrolü için).
- * @return array|false Sefer bilgileri (dizi) veya bulunamazsa false.
- */
 function getTripDetailsForCompany(string $tripId, string $companyId): array|false
 {
     global $pdo;
@@ -490,14 +340,6 @@ function getTripDetailsForCompany(string $tripId, string $companyId): array|fals
     }
 }
 
-/**
- * Belirtilen bileti iptal eder, koltuğu serbest bırakır ve kullanıcıya ücret iadesi yapar.
- * İşlem atomik (transaction) olarak gerçekleştirilir.
- *
- * @param string $ticketId İptal edilecek biletin ID'si.
- * @param string $companyId İşlemi yapan firmanın ID'si (yetki kontrolü için).
- * @return array Sonuç dizisi: ['success' => bool, 'message' => string]
- */
 function cancelTicketAndRefund(string $ticketId, string $companyId): array
 {
     global $pdo;
@@ -550,12 +392,6 @@ function cancelTicketAndRefund(string $ticketId, string $companyId): array
     }
 }
 
-/**
- * Belirtilen sefere ait tüm biletleri, yolcu ve koltuk bilgileriyle birlikte getirir.
- *
- * @param string $tripId Sefer ID'si.
- * @return array Biletlerin listesi.
- */
 function getTripTickets(string $tripId): array
 {
     global $pdo;
@@ -584,14 +420,6 @@ function getTripTickets(string $tripId): array
     }
 }
 
-/**
- * Belirtilen firmaya ait biletleri, isteğe bağlı arama filtresiyle birlikte getirir.
- * Geri dönen verilerde sefer ve yolcu detayları bulunur.
- *
- * @param string $companyId Firmanın ID'si.
- * @param string $search Arama kelimesi (sefer şehri veya yolcu adı).
- * @return array Arama sonuçlarına uygun bilet listesi (PDO::FETCH_ASSOC formatında).
- */
 function getCompanyTicketsWithSearch(string $companyId, string $search = ''): array
 {
     global $pdo;
@@ -629,18 +457,10 @@ function getCompanyTicketsWithSearch(string $companyId, string $search = ''): ar
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-        // Hata durumunda boş dizi döndür
-        // Hata ayıklama için: error_log($e->getMessage());
         return [];
     }
 }
 
-/**
- * Düz bir bilet listesini, sefer ID'sine göre hiyerarşik bir diziye gruplandırır.
- *
- * @param array $ticketRows getCompanyTicketsWithSearch fonksiyonundan dönen düz bilet listesi.
- * @return array Sefer ID'sine göre gruplandırılmış hiyerarşik dizi.
- */
 function groupTicketsByTrip(array $ticketRows): array
 {
     $trips = [];
@@ -660,12 +480,6 @@ function groupTicketsByTrip(array $ticketRows): array
     return $trips;
 }
 
-/**
- * Belirtilen sefere ait aktif biletler üzerinden dolu koltuk sayısını hesaplar.
- *
- * @param string $tripId Sefer ID'si.
- * @return int Dolu koltuk sayısı.
- */
 function getBookedSeatCountForTrip(string $tripId): int
 {
     global $pdo;
@@ -683,15 +497,6 @@ function getBookedSeatCountForTrip(string $tripId): int
     }
 }
 
-/**
- * Bir seferin bilgilerini günceller ve kapasitenin dolu koltuk sayısından az olmamasını garanti eder.
- *
- * @param string $tripId Güncellenecek seferin ID'si.
- * @param string $companyId Firmanın ID'si (yetki kontrolü için).
- * @param array $data Yeni sefer verileri (departure_city, capacity vb.).
- * @param int $minCapacity Yeni kapasite için minimum limit (dolu koltuk sayısı).
- * @return array Sonuç dizisi: ['success' => bool, 'message' => string]
- */
 function updateTripDetails(string $tripId, string $companyId, array $data, int $minCapacity): array
 {
     global $pdo;
@@ -732,13 +537,6 @@ function updateTripDetails(string $tripId, string $companyId, array $data, int $
     }
 }
 
-/**
- * Belirtilen ID'ye sahip kuponun detaylarını, firmaya aitlik kontrolü yaparak getirir.
- *
- * @param string $couponId Kupon ID'si.
- * @param string $companyId Firmanın ID'si.
- * @return array|false Kupon bilgileri (dizi) veya bulunamazsa false.
- */
 function getCouponDetailsForCompany(string $couponId, string $companyId): array|false
 {
     global $pdo;
@@ -747,24 +545,14 @@ function getCouponDetailsForCompany(string $couponId, string $companyId): array|
         $stmt->execute([$couponId, $companyId]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-        // Hata durumunda güvenli bir şekilde false döndür
         return false;
     }
 }
 
-/**
- * Bir kuponun bilgilerini günceller.
- *
- * @param string $couponId Güncellenecek kuponun ID'si.
- * @param string $companyId Firmanın ID'si (yetki kontrolü için).
- * @param array $data Yeni kupon verileri (code, discount, usage_limit, expire_date).
- * @return array Sonuç dizisi: ['success' => bool, 'message' => string]
- */
 function updateCouponForCompany(string $couponId, string $companyId, array $data): array
 {
     global $pdo;
     
-    // Veri temizleme ve formatlama
     $code = strtoupper(trim($data['code']));
     $discount = floatval($data['discount']);
     $usage_limit = intval($data['usage_limit']);
@@ -794,13 +582,6 @@ function updateCouponForCompany(string $couponId, string $companyId, array $data
     }
 }
 
-/**
- * Yeni bir kupon oluşturur ve veritabanına kaydeder.
- *
- * @param string $companyId Kuponu oluşturan firmanın ID'si.
- * @param array $data Kupon verileri (code, discount, usage_limit, expire_date).
- * @return array Sonuç dizisi: ['success' => bool, 'message' => string]
- */
 function createCoupon(string $companyId, array $data): array
 {
     global $pdo;
@@ -839,13 +620,6 @@ function createCoupon(string $companyId, array $data): array
     }
 }
 
-/**
- * Belirtilen ID'ye sahip kuponu, firmaya aitlik kontrolü yaparak siler.
- *
- * @param string $couponId Silinecek kuponun ID'si.
- * @param string $companyId Firmanın ID'si (yetki kontrolü için).
- * @return array Sonuç dizisi: ['success' => bool, 'message' => string]
- */
 function deleteCouponForCompany(string $couponId, string $companyId): array
 {
     global $pdo;
@@ -868,12 +642,6 @@ function deleteCouponForCompany(string $couponId, string $companyId): array
     }
 }
 
-/**
- * Belirtilen firmaya ait kuponları kullanım sayılarıyla birlikte listeler.
- *
- * @param string $companyId Firmanın ID'si.
- * @return array Kuponların listesi.
- */
 function getCompanyCoupons(string $companyId): array
 {
     global $pdo;
@@ -890,18 +658,10 @@ function getCompanyCoupons(string $companyId): array
         $stmt->execute([$companyId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-        // Hata durumunda boş dizi döndür
         return [];
     }
 }
 
-/**
- * Yeni bir sefer oluşturur ve veritabanına kaydeder.
- *
- * @param string $companyId Seferi ekleyen firmanın ID'si.
- * @param array $data Sefer verileri (departure_city, destination_city, departure_time, arrival_time, price, capacity).
- * @return array Sonuç dizisi: ['success' => bool, 'message' => string]
- */
 function createNewTrip(string $companyId, array $data): array
 {
     global $pdo;
@@ -932,12 +692,6 @@ function createNewTrip(string $companyId, array $data): array
     }
 }
 
-/**
- * Kalkış saati geçmiş olan kullanıcının aktif biletlerini 'expired' durumuna günceller.
- *
- * @param string $userId Kullanıcının ID'si.
- * @return bool İşlem başarılıysa true.
- */
 function expireUserPastTickets(string $userId): bool
 {
     global $pdo;
@@ -955,18 +709,10 @@ function expireUserPastTickets(string $userId): bool
         $stmt->execute([$userId]);
         return true;
     } catch (PDOException $e) {
-        // Hata durumunda sadece loglama yapılabilir, kullanıcının sayfasını durdurmaya gerek yok.
-        // error_log("Bilet süresi dolumu hatası: " . $e->getMessage());
         return false;
     }
 }
 
-/**
- * Belirtilen kullanıcının tüm biletlerini sefer, firma ve koltuk detaylarıyla birlikte getirir.
- *
- * @param string $userId Kullanıcının ID'si.
- * @return array Biletlerin detaylı listesi.
- */
 function getUserTicketsDetails(string $userId): array
 {
     global $pdo;
@@ -998,12 +744,6 @@ function getUserTicketsDetails(string $userId): array
     }
 }
 
-/**
- * Belirtilen ID'ye sahip seferin detaylarını ve firma adını getirir.
- *
- * @param string $tripId Sefer ID'si.
- * @return array|false Sefer bilgileri (dizi) veya bulunamazsa false.
- */
 function getTripDetailsWithCompanyName(string $tripId): array|false
 {
     global $pdo;
@@ -1021,12 +761,6 @@ function getTripDetailsWithCompanyName(string $tripId): array|false
     }
 }
 
-/**
- * Belirtilen sefere ait aktif durumdaki dolu koltuk sayısını (bilet sayısını) hesaplar.
- *
- * @param string $tripId Sefer ID'si.
- * @return int Dolu koltuk sayısı.
- */
 function getActiveBookedCountForTrip(string $tripId): int
 {
     global $pdo;
@@ -1043,12 +777,6 @@ function getActiveBookedCountForTrip(string $tripId): int
     }
 }
 
-/**
- * Belirtilen kullanıcının tüm profil detaylarını (varsa firma adı dahil) getirir.
- *
- * @param string $userId Kullanıcının ID'si.
- * @return array|false Profil bilgileri (dizi) veya bulunamazsa false.
- */
 function getUserProfileDetails(string $userId): array|false
 {
     global $pdo;
@@ -1066,14 +794,6 @@ function getUserProfileDetails(string $userId): array|false
     }
 }
 
-/**
- * Kullanıcının şifresini güvenli bir şekilde değiştirir.
- *
- * @param string $userId Kullanıcının ID'si.
- * @param string $oldPassword Mevcut şifre.
- * @param string $newPassword Yeni şifre.
- * @return array Sonuç dizisi: ['success' => bool, 'message' => string]
- */
 function changeUserPassword(string $userId, string $oldPassword, string $newPassword): array
 {
     global $pdo;
@@ -1100,15 +820,6 @@ function changeUserPassword(string $userId, string $oldPassword, string $newPass
     }
 }
 
-/**
- * Kullanıcı tarafından belirtilen filtrelerle aktif seferleri listeler.
- *
- * @param string $from Kalkış şehri filtresi.
- * @param string $to Varış şehri filtresi.
- * @param string $date Tarih filtresi (YYYY-MM-DD).
- * @param int $limit Maksimum sefer sayısı.
- * @return array Seferlerin firma adıyla birlikte listesi.
- */
 function searchActiveTrips(string $from = '', string $to = '', string $date = '', int $limit = 10): array
 {
     global $pdo;
@@ -1141,11 +852,6 @@ function searchActiveTrips(string $from = '', string $to = '', string $date = ''
 
     try {
         $stmt = $pdo->prepare($query);
-        // PDO'da LIMIT parametresini doğrudan bindValue ile INTEGER olarak belirtmek gerekir.
-        // LIMIT için özel bir durum: MySQL/SQLite LIMIT/OFFSET değerleri için doğrudan integer bind'ı desteklemez. 
-        // Ancak bu örnekte, LIMIT değeri sabit olduğu için, güvenlik amacıyla sorguyu dikkatli hazırlayabiliriz.
-        // PDO::PARAM_INT kullanımını manuel olarak ekliyorum:
-
         foreach ($params as $key => &$value) {
             if ($key === ':limit') continue;
             $stmt->bindParam($key, $value);
@@ -1155,19 +861,10 @@ function searchActiveTrips(string $from = '', string $to = '', string $date = ''
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-        // Hata durumunda boş dizi döndür
-        // error_log("Sefer arama hatası: " . $e->getMessage());
         return [];
     }
 }
 
-/**
- * Kupon kodunu belirli bir sefer için doğrular ve geçerliyse yeni fiyatı hesaplar.
- *
- * @param string $tripId Sefer ID'si.
- * @param string $code Kupon kodu.
- * @return array Sonuç dizisi: ['valid' => bool, 'new_price' => float|null, 'error' => string|null]
- */
 function validateCouponAndCalculatePrice(string $tripId, string $code): array
 {
     global $pdo;
@@ -1215,14 +912,6 @@ function validateCouponAndCalculatePrice(string $tripId, string $code): array
     return ['valid' => true, 'new_price' => $newPrice, 'error' => null, 'coupon_id' => $coupon['id'], 'discount' => $coupon['discount']];
 }
 
-/**
- * Kullanıcı tarafından satın alınan bir bileti, zaman kontrolü yaparak iptal eder ve iade yapar.
- *
- * @param string $ticketId İptal edilecek biletin ID'si.
- * @param string $userId İşlemi yapan kullanıcının ID'si (yetki kontrolü için).
- * @param int $minHoursBeforeDeparture İptal için minimum kalan saat (varsayılan 1 saat).
- * @return array Sonuç dizisi: ['success' => bool, 'message' => string]
- */
 function cancelTicketAndRefundByUser(string $ticketId, string $userId, int $minHoursBeforeDeparture = 1): array
 {
     global $pdo;
@@ -1277,12 +966,6 @@ function cancelTicketAndRefundByUser(string $ticketId, string $userId, int $minH
     }
 }
 
-/**
- * Belirtilen ID'ye sahip seferin detaylarını, firma adını ve zaman kontrolünü yaparak getirir.
- *
- * @param string $tripId Sefer ID'si.
- * @return array|false Sefer bilgileri (dizi) veya bulunamaz/geçmişse false.
- */
 function getTripDetailsForPurchase(string $tripId): array|false
 {
     global $pdo;
@@ -1309,12 +992,6 @@ function getTripDetailsForPurchase(string $tripId): array|false
     return $trip;
 }
 
-/**
- * Belirtilen sefere ait aktif olarak rezerve edilmiş koltuk numaralarını getirir.
- *
- * @param string $tripId Sefer ID'si.
- * @return array Dolu koltuk numaralarının dizisi (string veya int).
- */
 function getBookedSeatsForTrip(string $tripId): array
 {
     global $pdo;
@@ -1325,6 +1002,67 @@ function getBookedSeatsForTrip(string $tripId): array
     ");
     $stmt->execute([$tripId]);
     
-    // PHP'de array_column her zaman string döner, bu yüzden dönüş tipi int olsa bile dikkat etmek gerekir.
     return array_map('intval', array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'seat_number'));
+}
+
+function getTripById($pdo, $trip_id) {
+    $stmt = $pdo->prepare("SELECT * FROM Trips WHERE id = ?");
+    $stmt->execute([$trip_id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+function isTripDeparted($trip) {
+    return strtotime($trip['departure_time']) <= time();
+}
+
+function getUserBalance($pdo, $user_id) {
+    $stmt = $pdo->prepare("SELECT balance FROM User WHERE id = ?");
+    $stmt->execute([$user_id]);
+    return floatval($stmt->fetchColumn());
+}
+
+function getCouponDetails($pdo, $coupon_code) {
+    $stmt = $pdo->prepare("SELECT * FROM Coupons WHERE UPPER(code) = ?");
+    $stmt->execute([$coupon_code]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+function isCouponExpired($coupon) {
+    return $coupon['expire_date'] < date('Y-m-d');
+}
+
+function isCouponValidForCompany($pdo, $coupon, $trip_id) {
+    if (!$coupon['company_id']) return true;
+    $stmt = $pdo->prepare("SELECT company_id FROM Trips WHERE id = ?");
+    $stmt->execute([$trip_id]);
+    $tripCompany = $stmt->fetchColumn();
+    return $coupon['company_id'] === $tripCompany;
+}
+
+function isCouponUsageLimitReached($pdo, $coupon_id) {
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM User_Coupons WHERE coupon_id = ?");
+    $stmt->execute([$coupon_id]);
+    $usedCount = (int)$stmt->fetchColumn();
+
+    $stmt = $pdo->prepare("SELECT usage_limit FROM Coupons WHERE id = ?");
+    $stmt->execute([$coupon_id]);
+    $usageLimit = (int)$stmt->fetchColumn();
+
+    return $usedCount >= $usageLimit;
+}
+
+function calculateFinalTicketPrice($price, $discount) {
+    return round($price * (1 - $discount / 100), 2);
+}
+
+function isSeatBooked($pdo, $trip_id, $seat_number) {
+    $stmt = $pdo->prepare("
+        SELECT COUNT(*) FROM Booked_Seats 
+        WHERE seat_number = :seat 
+        AND ticket_id IN (
+            SELECT id FROM Tickets WHERE trip_id = :trip AND status = 'active'
+        )
+    ");
+    $stmt->execute([':seat' => $seat_number, ':trip' => $trip_id]);
+    return (int)$stmt->fetchColumn() > 0;
 }
