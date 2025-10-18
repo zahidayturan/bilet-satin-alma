@@ -62,7 +62,7 @@ require_once __DIR__ . '/../../includes/header.php';
 ?>
 
 <h2>✏️ Firma Admin Düzenle</h2>
-<a href="firma_admin.php">← Geri Dön</a>
+<a href="show_company_admins.php">← Geri Dön</a>
 <hr>
 
 <?php if ($errors): ?>

@@ -16,7 +16,6 @@ require_once __DIR__ . '/../includes/header.php';
     <?php $role = $_SESSION['user']['role'] ?? ''; ?>
     <?php if ($role === 'admin'): ?>
       <span>Admin - Hoş geldin, <strong><?= htmlspecialchars($_SESSION['user']['full_name']) ?></strong></span> |
-      <a href="profile.php">Profilim</a> |
       <a href="admin/panel.php">Admin Paneli</a> |
       <a href="admin/show_companies.php">Firmalar</a> |
       <a href="admin/show_company_admins.php">Firma Adminleri</a> |

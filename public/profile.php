@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/functions.php';
 requireLogin();
+requireRole(['user', 'company']);
 
 $user = $_SESSION['user'];
 $role = $user['role'];
@@ -73,7 +74,7 @@ require_once __DIR__ . '/../includes/header.php';
     <?php endif; ?>
   </div>
 
-  <?php if ($role === 'user' || $role === 'admin'): ?>
+  <?php if ($role === 'user'): ?>
     <h3>🔒 Şifre Değiştir</h3>
     <form method="POST">
       <label>Mevcut Şifre:</label>
