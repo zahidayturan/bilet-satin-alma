@@ -28,13 +28,15 @@ require_once __DIR__ . '/../includes/header.php';
         <p><strong>Boş Koltuk Sayısı:</strong> <?= $bos ?> koltuk</p>
     </div>
 
+    <?php if (isLoggedIn() && ($_SESSION['user']['role'] ?? '') === 'user'): ?>
     <?php if ($bos <= 0): ?>
         <p class="error">Maalesef, bu seferde boş koltuk kalmamış.</p>
-    <?php elseif (isLoggedIn()): ?>
+    <?php else: ?>
         <div class="ticket-action">
             <a href="buy_ticket.php?id=<?= urlencode($trip['id']) ?>" class="button">🎟️ Bilet Satın Al</a>
         </div>
-    <?php else: ?>
+    <?php endif; ?>
+    <?php elseif (!isLoggedIn()): ?>
         <p class="error">Bilet satın almak için <a href="login.php">giriş yapın</a>.</p>
     <?php endif; ?>
 

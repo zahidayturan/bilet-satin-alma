@@ -7,8 +7,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['full_name'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
-    
-    if (registerUser($name, $email, $password)) {
+    $password_confirm = $_POST['password_confirm'] ?? '';
+
+    if ($password !== $password_confirm) {
+        $message = "Şifreler eşleşmiyor!";
+    } elseif (registerUser($name, $email, $password)) {
         header('Location: login.php?registered=1');
         exit;
     } else {
@@ -37,6 +40,9 @@ require_once __DIR__ . '/../includes/header.php';
 
     <label>Şifre:</label><br>
     <input type="password" name="password" required><br><br>
+
+    <label>Şifre Tekrar:</label><br>
+    <input type="password" name="password_confirm" required><br><br>
 
     <button type="submit">Kayıt Ol</button>
 </form>
