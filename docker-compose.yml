@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: bana1bilet
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+      - sqlite_data:/var/www/html/database
+    environment:
+      - APP_ENV=development
+    restart: unless-stopped
+
+volumes:
+  sqlite_data:
