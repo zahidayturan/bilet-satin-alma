@@ -39,43 +39,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
     }
 }
 
+// 3. Bakiye talep etme işlemi
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_balance'])) {
+    
+    $result = addBalanceToUser($user_id);
+    if ($result['success']) {
+        header("Location: profile.php");
+        exit;
+    } else {
+        $error[] = $result['message'];
+    }
+}
 $page_title = "Bana1Bilet - Profilim";
 require_once __DIR__ . '/../includes/header.php';
+
+require_once __DIR__ . '/../includes/message_comp.php';
 ?>
 
 <div class="container">
-  <h2>👤 Profilim</h2>
-  <p><a href="index.php">← Ana Sayfa</a></p>
-  <hr>
-
-  <?php if ($success): ?>
-    <div class="success">✅ <?= htmlspecialchars($success) ?></div>
-  <?php endif; ?>
-
-  <?php if ($error): ?>
-    <div class="error">
-      <?php foreach ($error as $err): ?>
-        <div>❌ <?= htmlspecialchars($err) ?></div>
-      <?php endforeach; ?>
-    </div>
-  <?php endif; ?>
-
+  <h2>Kişisel Bilgiler</h2>
   <div class="info">
     <p><strong>Ad Soyad:</strong> <?= htmlspecialchars($profile['full_name']) ?></p>
     <p><strong>E-posta:</strong> <?= htmlspecialchars($profile['email']) ?></p>
-    <p><strong>Rol:</strong> <?= htmlspecialchars(ucfirst($profile['role'])) ?></p>
+    <p><strong>Katılma Tarihi:</strong> <?= htmlspecialchars(ucfirst($profile['created_at'])) ?></p>
 
     <?php if ($role === 'company'): ?>
       <p><strong>Firma:</strong> <?= htmlspecialchars($profile['company_name'] ?? '-') ?></p>
     <?php endif; ?>
-
-    <?php if ($role === 'user'): ?>
-      <p><strong>Bakiye:</strong> <?= htmlspecialchars($profile['balance']) ?> ₺</p>
-    <?php endif; ?>
   </div>
+</div>
 
+<div class="container" style="margin-top: 40px;">
+  <h2>Şifreyi Değiştir</h2>
   <?php if ($role === 'user'): ?>
-    <h3>🔒 Şifre Değiştir</h3>
     <form method="POST">
       <label>Mevcut Şifre:</label>
       <input type="password" name="old_password" required>
@@ -86,12 +82,22 @@ require_once __DIR__ . '/../includes/header.php';
       <label>Yeni Şifre (Tekrar):</label>
       <input type="password" name="confirm_password" required>
 
-      <button type="submit" name="change_password">Şifreyi Güncelle</button>
+      <button type="submit" class="form-button" name="change_password">Şifreyi Güncelle</button>
     </form>
   <?php else: ?>
     <p>Şifrenizi veya bilgilerinizi değiştirmek için yöneticinize ulaşmalısınız.</p>
   <?php endif; ?>
 </div>
+
+<?php if ($role === 'user'): ?>
+<div class="container" style="margin-top: 40px;">
+    <h2>Bakiye Bilgisi</h2>
+    <form method="POST">
+        <input type="text" value="<?= htmlspecialchars($profile['balance']) ?> ₺" class="borderless-input" readonly>
+        <button type="submit" class="form-button" name="add_balance">Bakiye Talep Et</button>
+    </form>
+</div>
+<?php endif; ?>
 
 <?php
 require_once __DIR__ . '/../includes/footer.php';

@@ -794,6 +794,38 @@ function getUserProfileDetails(string $userId): array|false
     }
 }
 
+function addBalanceToUser($user_id)
+{
+    global $pdo;
+
+    try {
+        $stmt = $pdo->prepare("SELECT id, balance FROM User WHERE id = ?");
+        $stmt->execute([$user_id]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user) {
+            return ['success' => false, 'message' => 'Kullanıcı bulunamadı.'];
+        }
+
+        $current_balance = (float)$user['balance'];
+
+        if ($current_balance >= 10000) {
+            return ['success' => false, 'message' => 'Daha fazla bakiye talep edemezsiniz.'];
+        }
+        $new_balance = min(10000, $current_balance + 1000);
+
+        $stmt = $pdo->prepare("UPDATE User SET balance = ? WHERE id = ?");
+        $stmt->execute([$new_balance, $user_id]);
+
+        return [
+            'success' => true,
+            'message' => "Bakiyeniz güncellendi. Yeni bakiye: {$new_balance} ₺"
+        ];
+    } catch (Exception $e) {
+        return ['success' => false, 'message' => 'Hata: ' . $e->getMessage()];
+    }
+}
+
 function changeUserPassword(string $userId, string $oldPassword, string $newPassword): array
 {
     global $pdo;

@@ -10,5 +10,5 @@
 </head>
 <body>
 <header>
-    <h2>Bana1Bilet</h2>
+    <h2><a href="index.php">Bana1Bilet</a></h2>
 </header>
