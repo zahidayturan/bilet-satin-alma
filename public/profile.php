@@ -52,7 +52,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_balance'])) {
 }
 $page_title = "Bana1Bilet - Profilim";
 require_once __DIR__ . '/../includes/header.php';
-
 require_once __DIR__ . '/../includes/message_comp.php';
 ?>
 

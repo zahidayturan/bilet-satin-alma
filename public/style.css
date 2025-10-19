@@ -38,6 +38,13 @@ th {
     border: 1px solid #aaffaa; 
 }
 
+h2 {
+    margin: 0 0 20px 0;
+}
+
+p {
+    margin: 8px 0 0 0;
+}
 
 a { 
     text-decoration: none;
@@ -94,7 +101,7 @@ button:hover {
 }
 
 .container { 
-    max-width: 600px;
+    max-width: 500px;
     margin: auto;
     background: #FFFFFF;
     padding: 20px;
@@ -102,12 +109,13 @@ button:hover {
 }
 
 .info {
-    padding: 10px;
+    padding: 0 0 0 10px;
 }
 
 label {
     display: block;
     margin-top: 10px;
+    margin-bottom: 6px;
 }
 
 .borderless-input {
@@ -116,22 +124,11 @@ label {
 }
 
 input {
-    padding: 6px;
+    padding: 12px 6px;
     width: 100%;
     box-sizing: border-box;
-}
-
-.form-button {
-    margin-top: 15px;
-    padding: 10px;
-    background: #0D0D0D;
-    color: white;
-    border: none;
     border-radius: 4px;
-    width: 100%;
-    cursor: pointer;
 }
-
 
 /* =============================================
    Uyarı Kutusu (Alert Box) Stilleri
@@ -177,4 +174,69 @@ input {
     padding-left: 0;
     margin-top: 5px;
     margin-bottom: 0;
+}
+
+/* =============================================
+   Form İçin Style
+   ============================================= */
+
+.main-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group {
+    position: relative;
+    margin-bottom: 18px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 15px 12px 5px 12px;
+    border-radius: 0;
+    font-size: 16px;
+    border: none;
+    border-bottom: 1px solid #0D0D0D;
+    outline: none;
+    background: transparent;
+    transition: border-bottom-color 0.3s ease;
+}
+
+.form-group input:focus {
+    border-bottom-color: #4A808C;
+}
+
+.form-group label {
+    position: absolute;
+    top: 25%;
+    transform: translateY(-50%);
+    color: #0D0D0D;
+    font-size: 16px;
+    pointer-events: none;
+    transition: 0.3s ease all;
+}
+
+.form-group input:focus + label,
+.form-group input:not(:placeholder-shown) + label {
+    top: 0;
+    font-size: 12px;
+    color: #4A808C;
+    transform: translateY(-100%);
+}
+
+.form-button {
+    margin: 8px 0;
+    padding: 12px 8px;
+    background: #0D0D0D;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    width: 100%;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.form-button:hover {
+    transition: 0.3s ease all;
+    background: #4A808C;
 }
