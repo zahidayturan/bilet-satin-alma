@@ -4,6 +4,12 @@ body {
     margin: 20px; 
 }
 
+* {
+    margin: 0;
+    padding: 0;
+    transition: all 300ms ease;
+}
+
 table { 
     border-collapse: collapse; 
     width: 100%; 
@@ -48,7 +54,8 @@ p {
 
 a { 
     text-decoration: none;
-    color: #2980b9;
+    color: #4A808C;
+    font-weight: bold;
 }
 
 a:hover {
@@ -121,6 +128,10 @@ label {
 .borderless-input {
     border: none;
     background: transparent;
+}
+
+.borderless-input:focus {
+    outline: none;
 }
 
 input {
@@ -225,7 +236,7 @@ input {
 }
 
 .form-button {
-    margin: 8px 0;
+    margin: 8px 0 0 0;
     padding: 12px 8px;
     background: #0D0D0D;
     color: white;

@@ -68,18 +68,23 @@ require_once __DIR__ . '/../includes/message_comp.php';
   </div>
 </div>
 
-<div class="container" style="margin-top: 40px;">
+<div class="container" style="margin-top: 24px;">
   <h2>Şifreyi Değiştir</h2>
   <?php if ($role === 'user'): ?>
-    <form method="POST">
-      <label>Mevcut Şifre:</label>
-      <input type="password" name="old_password" required>
+    <form method="POST" class="main-form">
 
-      <label>Yeni Şifre:</label>
-      <input type="password" name="new_password" required>
-
-      <label>Yeni Şifre (Tekrar):</label>
-      <input type="password" name="confirm_password" required>
+      <div class="form-group">
+        <input type="password" name="old_password" id="old_password" placeholder=" " required>
+        <label for="old_password">Mevcut Şifre</label>
+      </div>
+      <div class="form-group">
+        <input type="password" name="new_password" id="new_password" placeholder=" " required>
+        <label for="new_password">Yeni Şifre</label>
+      </div>
+      <div class="form-group">
+        <input type="password" name="confirm_password" id="confirm_password" placeholder=" " required>
+        <label for="confirm_password">Yeni Şifre Tekrar</label>
+      </div>
 
       <button type="submit" class="form-button" name="change_password">Şifreyi Güncelle</button>
     </form>
@@ -89,7 +94,7 @@ require_once __DIR__ . '/../includes/message_comp.php';
 </div>
 
 <?php if ($role === 'user'): ?>
-<div class="container" style="margin-top: 40px;">
+<div class="container" style="margin-top: 24px;">
     <h2>Bakiye Bilgisi</h2>
     <form method="POST">
         <input type="text" value="<?= htmlspecialchars($profile['balance']) ?> ₺" class="borderless-input" readonly>

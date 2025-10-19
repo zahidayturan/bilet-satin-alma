@@ -18,11 +18,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $page_title = "Bana1Bilet - Giriş Yap";
-require_once __DIR__ . '/../includes/header.php';
-require_once __DIR__ . '/../includes/message_comp.php';
 ?>
 
-<div class="container">
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title><?= $page_title ?? 'Bana1Bilet' ?></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="/style.css">
+</head>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100dvh;
+            margin: 0;
+        }
+
+        .login-title{
+            font-size: 20px;
+            font-weight: bold;
+            margin: 16px;
+            align-self: start;
+        }
+
+        .login-title a {
+            color: #0D0D0D;
+        }
+
+    </style>
+<body>
+<p class="login-title"><a href="index.php">Bana1Bilet</a></p>
+<div class="container" style="min-width:25%;">
     <h2>Giriş Yap</h2>
     <form method="POST" class="main-form">
         <div class="form-group">
@@ -35,9 +65,13 @@ require_once __DIR__ . '/../includes/message_comp.php';
         </div>
         <button type="submit" class="form-button">Giriş Yap</button>
     </form>
-    <p>Hesabın yok mu? <a href="register.php">Kayıt Ol</a></p>
+    <p style="text-align: center;margin-top:24px;">Hesabın yok mu? <a href="register.php">Kayıt Ol</a></p>
+    <?php
+        require_once __DIR__ . '/../includes/message_comp.php';
+    ?>
 </div>
 
-<?php
-require_once __DIR__ . '/../includes/footer.php';
-?>
+<p style="text-align: center;margin:16px;">Gideceğin Her Yere<br>Bana1Bilet</p>
+
+</body>
+</html>

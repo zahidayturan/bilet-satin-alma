@@ -11,38 +11,6 @@ $trips = searchActiveTrips($from, $to, $date, 10);
 require_once __DIR__ . '/../includes/header.php';
 ?>
 
-<?php if (isLoggedIn()): ?>
-  <div style="background:#f3f3f3;padding:10px;border-radius:8px;">
-    <?php $role = $_SESSION['user']['role'] ?? ''; ?>
-    <?php if ($role === 'admin'): ?>
-      <span>Admin - Hoş geldin, <strong><?= htmlspecialchars($_SESSION['user']['full_name']) ?></strong></span> |
-      <a href="admin/panel.php">Admin Paneli</a> |
-      <a href="admin/show_companies.php">Firmalar</a> |
-      <a href="admin/show_company_admins.php">Firma Adminleri</a> |
-      <a href="admin/coupons.php">Bütün Kuponlar</a> |
-      <a href="logout.php">Oturumu Kapat</a>
-    <?php elseif ($role === 'company'): ?>
-      <span>Firma - Hoş geldin, <strong><?= htmlspecialchars($_SESSION['user']['full_name']) ?></strong></span> |
-      <a href="profile.php">Profilim</a> |
-      <a href="company/panel.php">Firma Paneli</a> |
-      <a href="company/trips.php">Seferlerim</a> |
-      <a href="company/coupons.php">Firma Kuponları</a> |
-      <a href="company/tickets.php">Biletler</a> |
-      <a href="logout.php">Oturumu Kapat</a>
-    <?php else: ?>
-      <span>Hoş geldin, <strong><?= htmlspecialchars($_SESSION['user']['full_name']) ?></strong></span> |
-      <a href="profile.php">Profilim</a> |
-      <a href="my_tickets.php">Biletlerim</a> |
-      <a href="logout.php">Oturumu Kapat</a>
-    <?php endif; ?>
-  </div>
-<?php else: ?>
-  <a href="login.php">Giriş Yap</a> | <a href="register.php">Kayıt Ol</a>
-<?php endif; ?>
-</nav>
-
-<hr>
-
 <form method="GET">
   <label>Kalkış:</label> <input type="text" name="from" value="<?= htmlspecialchars($from) ?>">
   <label>Varış:</label> <input type="text" name="to" value="<?= htmlspecialchars($to) ?>">
@@ -50,7 +18,7 @@ require_once __DIR__ . '/../includes/header.php';
   <button type="submit">Sefer Ara</button>
 </form>
 
-<hr>
+
 
 <?php if ($trips): ?>
   <h2>Aktif Seferler</h2>
