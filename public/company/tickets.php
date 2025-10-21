@@ -64,18 +64,21 @@ require_once __DIR__ . '/../../includes/header.php';
 
 <h2>🎫 Firma Biletleri</h2>
 
-<div class="search-box">
+<div class="container" style="margin-bottom:20px;">
   <form method="GET">
-    <input type="text" name="q" value="<?= htmlspecialchars($search) ?>" placeholder="Şehir veya yolcu adı ara...">
-    <button type="submit">Ara</button>
-    <?php if ($search !== ''): ?>
-      <a href="tickets.php" style="margin-left:10px;">❌ Temizle</a>
-    <?php endif; ?>
+    <div style="display:flex;flex-direction:row;gap:10px;align-items:center;">
+      <input type="text" name="q" value="<?= htmlspecialchars($search) ?>" placeholder="Şehir veya yolcu adı ara...">
+      <?php if ($search !== ''): ?>
+        <a href="tickets.php">❌Temizle</a>
+      <?php endif; ?>
+    </div>
+    <button class="form-button" type="submit">Ara</button>
+    
   </form>
 </div>
 
 <?php if (empty($trips)): ?>
-  <p>Hiç bilet bulunamadı.</p>
+  <p style="text-align:center;">Hiç bilet bulunamadı.</p>
 <?php else: ?>
   <?php foreach ($trips as $trip_id => $trip): ?>
     <div class="table-container">

@@ -402,6 +402,7 @@ function getTripTickets(string $tripId): array
                 t.id AS ticket_id,
                 t.status,
                 t.total_price,
+                t.created_at AS purchase_date,
                 u.full_name,
                 u.email,
                 bs.seat_number,

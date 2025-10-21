@@ -8,6 +8,10 @@ $date = $_GET['date'] ?? '';
 
 $trips = searchActiveTrips($from, $to, $date, 10);
 
+if (!isset($date) || empty($date)) {
+    $date = date('Y-m-d');
+}
+
 require_once __DIR__ . '/../includes/header.php';
 ?>
 
@@ -17,19 +21,22 @@ require_once __DIR__ . '/../includes/header.php';
     <form method="GET" class="search-form">
       <div>
         <label>Nereden</label>
-        <input type="text" name="from" value="<?= htmlspecialchars($from) ?>">
+        <input type="text" name="from" placeholder="Ankara" value="<?= htmlspecialchars($from) ?>" required>
       </div>
       <div>
         <label>Nereye</label>
-        <input type="text" name="to" value="<?= htmlspecialchars($to) ?>">
+        <input type="text" name="to" placeholder="İstanbul" value="<?= htmlspecialchars($to) ?>" required>
       </div>
       <div>
         <label>Tarih</label>
-        <input type="date" name="date" value="<?= htmlspecialchars($date) ?>">
+        <input type="date" name="date" value="<?= htmlspecialchars($date) ?>" required>
       </div>
       <button type="submit" class="search-button">Sefer Ara</button>
     </form>
   </div>
+  <?php if ($from || $to): ?>
+    <a href="index.php" style="color:white;font-size:13px;">Aramayı temizle</a>
+  <?php endif; ?>
 </div>
 
 

@@ -60,24 +60,6 @@ td {
     background-color: #F2F2F2;
 }
 
-.message { 
-    padding: 10px; 
-    margin-bottom: 15px; 
-    border-radius: 4px; 
-}
-
-.error { 
-    color: #880000; 
-    background-color: #ffdddd; 
-    border: 1px solid #ffaaaa; 
-}
-
-.success { 
-    color: #006600; 
-    background-color: #ddffdd; 
-    border: 1px solid #aaffaa; 
-}
-
 h2 {
     margin: 0 0 20px 0;
 }
@@ -93,25 +75,6 @@ a {
 
 a:hover {
     text-decoration: underline;
-}
-
-.search-box {
-    margin-bottom: 20px;
-}
-
-.search-box input {
-    padding: 5px;
-    width: 250px;
-}
-
-.search-box button {
-    padding: 5px 10px;
-}
-
-.message {
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 4px;
 }
 
 tr:nth-child(even) {

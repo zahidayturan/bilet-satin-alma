@@ -7,19 +7,27 @@ require_once __DIR__ . '/../../includes/functions.php';
 $company_id = $_SESSION['user']['company_id'];
 $coupon_id = $_GET['id'] ?? null;
 
-// Mesaj değişkenleri
-$success = '';
-$error = '';
+$error = [];
+$success = "";
+
+if (isset($_SESSION['success_message'])) {
+    $success = htmlspecialchars($_SESSION['success_message']);
+    unset($_SESSION['success_message']);
+}
+if (isset($_SESSION['error_message'])) {
+    $error[] = htmlspecialchars($_SESSION['error_message']);
+    unset($_SESSION['error_message']);
+}
 
 if (!$coupon_id) {
-die("Hatali erişim."); 
+    $error[] = "Hatalı erişim."; 
 }
 
 // 1. Kupon bilgisini getir ve yetki kontrolü yap
 $coupon = getCouponDetailsForCompany($coupon_id, $company_id);
 
 if (!$coupon) {
-die("Bu kupon bulunamadı veya size ait değil.");
+    $error[] ="Kupon bulunamadı veya size ait değil.";
 }
 
 // 2. Güncelleme işlemi
@@ -35,47 +43,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $result = updateCouponForCompany($coupon_id, $company_id, $update_data);
 
     if ($result['success']) {
-        $success = $result['message'];
-        
-        // Başarılı güncelleme sonrası kuponun yeni bilgilerini çekiyoruz ki formda görüntülensin
-        $coupon = getCouponDetailsForCompany($coupon_id, $company_id); 
-        
+        $_SESSION['success_message'] = $result['message'];
     } else {
-        $error = $result['message'];
-        // Hata durumunda kullanıcının girdiği verileri formda tutmak için $coupon dizisini güncelle
-        $coupon['code'] = $update_data['code'];
-        $coupon['discount'] = $update_data['discount'];
-        $coupon['usage_limit'] = $update_data['usage_limit'];
-        $coupon['expire_date'] = $update_data['expire_date'];
+        $_SESSION['error_message'] = $result['message'];
     }
+
+    header("Location: edit_coupon.php?id=" . urlencode($coupon_id));
+    exit;
 }
 
 $page_title = "Bana1Bilet - Firma Yönetimi";
 require_once __DIR__ . '/../../includes/header.php';
 ?>
 
-<h2>✏️ Kupon Düzenle</h2>
-<a href="coupons.php">← Kupon Listesine Dön</a>
-<hr>
+<div style="margin-bottom: 20px;"><a href="coupons.php">← Kuponlara Geri Dön</a></div>
 
-<?php if ($error): ?><div class="error">❌ <?= htmlspecialchars($error) ?></div><?php endif; ?>
-<?php if ($success): ?><div class="success">✅ <?= htmlspecialchars($success) ?></div><?php endif; ?>
+<?php require_once __DIR__ . '/../../includes/message_comp.php'; ?>
 
-<form method="POST">
-  <label>Kod:</label>
-  <input type="text" name="code" value="<?= htmlspecialchars($coupon['code']) ?>" required><br><br>
+<?php if ($coupon): ?>
+<div class="container">
+    <h2>✏️ Kupon Düzenle</h2>
+    <form method="POST">
+    <label>Kod</label>
+    <input type="text" name="code" value="<?= htmlspecialchars($coupon['code']) ?>" required>
 
-  <label>İndirim (%):</label>
-  <input type="number" step="0.1" name="discount" value="<?= htmlspecialchars($coupon['discount']) ?>" min="0.1" max="100" required><br><br>
+    <label>İndirim (%)</label>
+    <input type="number" step="0.1" name="discount" value="<?= htmlspecialchars($coupon['discount']) ?>" min="0.1" max="100" required>
 
-  <label>Kullanım Limiti:</label>
-  <input type="number" name="usage_limit" value="<?= htmlspecialchars($coupon['usage_limit']) ?>" min="1" required><br><br>
+    <label>Kullanım Limiti</label>
+    <input type="number" name="usage_limit" value="<?= htmlspecialchars($coupon['usage_limit']) ?>" min="1" required>
 
-  <label>Son Tarih:</label>
-  <input type="date" name="expire_date" value="<?= htmlspecialchars($coupon['expire_date']) ?>" required><br><br>
+    <label>Son Tarih</label>
+    <input type="date" name="expire_date" value="<?= htmlspecialchars($coupon['expire_date']) ?>" required>
 
-  <button type="submit">Kaydet</button>
-</form>
+    <button class="form-button" type="submit">Kaydet</button>
+    </form>
+</div>
+<?php else: ?>
+    <p style="text-align:center;margin-top:20px;">Kupon bulunamadı.</p>
+    <a href="/index.php"><p style="text-align:center;">Ana Sayfaya Dön</p></a>
+<?php endif; ?>
 
 <?php
 require_once __DIR__ . '/../../includes/footer.php';
