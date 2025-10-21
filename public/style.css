@@ -1,5 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
 body { 
-    font-family: Arial, sans-serif; 
+    font-family: "Montserrat", sans-serif;
     background: #F2F2F2; 
     margin: 20px; 
 }
@@ -10,20 +12,32 @@ body {
     transition: all 300ms ease;
 }
 
+.table-container {
+    background: white;
+    padding: 12px;
+    border-radius: 8px;
+    overflow-x: auto;
+}
+
 table { 
-    border-collapse: collapse; 
     width: 100%; 
-    margin-top: 20px; 
+    border-collapse: separate;
+    border-spacing: 0 8px;
+    color: #0D0D0D;
 }
 
 th, td { 
-    border: 1px solid #ccc; 
-    padding: 8px; 
-    text-align: center; 
+    border: none; 
+    padding: 12px;
+    text-align: center;
 }
 
 th { 
-    background-color: #f2f2f2; 
+    color: #4A808C;
+}
+
+td {
+    background-color: #F2F2F2;
 }
 
 .message { 
@@ -55,7 +69,6 @@ p {
 a { 
     text-decoration: none;
     color: #4A808C;
-    font-weight: bold;
 }
 
 a:hover {
@@ -113,6 +126,49 @@ button:hover {
     background: #FFFFFF;
     padding: 20px;
     border-radius: 10px;
+}
+
+.search-back-container {
+    border-radius: 8px;
+    padding: 24px 0;
+    background: #011526;
+    background: linear-gradient(90deg,rgba(1, 21, 38, 1) 0%, rgba(34, 74, 89, 1) 100%);
+    width: 100%;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
+    gap: 24px;
+}
+
+.search-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+}
+
+.search-form div{
+    min-width: 150px;
+    max-width: 150px;
+}
+
+.search-container{
+    background: #FFFFFF;
+    padding: 16px;
+    border-radius: 10px;
+    color: #0D0D0D;
+    margin: 0 20px;
+}
+
+.search-button {
+    background: #4A808C;
+    color: white;
+    border: none;
+    padding: 30px 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
 }
 
 .info {
@@ -250,4 +306,22 @@ input {
 .form-button:hover {
     transition: 0.3s ease all;
     background: #4A808C;
+}
+
+@media (max-width: 768px) {
+
+    .search-form {
+        gap: 8px;
+    }
+
+    .search-form div{
+        min-width: 100%;
+        max-width: 100%;
+    }
+
+    .search-button {
+        margin-top: 8px;
+        padding: 12px;
+        width: 100%;
+    }
 }

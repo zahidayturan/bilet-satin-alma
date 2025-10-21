@@ -13,13 +13,16 @@ require_once __DIR__ . '/../includes/functions.php';
 
     <style>
         header {
-            padding: 0 0 10px 0;
+            padding: 0 0 24px 0;
             position: relative;
         }
 
         .logo {
             font-size: 20px;
-            font-weight: bold;
+        }
+
+        .logo a {
+            color: #0D0D0D;
         }
 
         .menu-toggle {
@@ -49,32 +52,55 @@ require_once __DIR__ . '/../includes/functions.php';
             color: #0D0D0D;
         }
 
+        .header-auth-button {
+            color: white;
+            padding: 8px 16px;
+            background: #0D0D0D;
+            border-radius: 24px;
+            font-size: 13px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .login-button {
+            background: #224A59;
+        }
+
+        .non-bg-button {
+            background: transparent;
+            color: #0D0D0D;
+        }
+
         @media (max-width: 768px) {
             .menu-toggle {
                 display: flex;
             }
 
             .nav-links a {
-                color: #fff;
+                width: 100%;
             }
 
             .nav-links {
                 display: none;
                 flex-direction: column;
-                background: #224A59;
-                color: #fff;
+                background: #FFFFFF;
                 position: absolute;
-                border-radius: 4px;
-                top: 60px;
+                border-radius: 8px;
+                top: 32px;
                 right: 0;
                 width: auto;
                 padding: 10px;
                 z-index: 10;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
             }
 
             .nav-links.show {
                 display: flex;
             }
+
+            .header-auth-button {
+                width: 100%;
+            }   
         }
     </style>
 
@@ -90,42 +116,77 @@ require_once __DIR__ . '/../includes/functions.php';
     </script>
 </head>
 <body>
+<?php
+    $currentPage = basename($_SERVER['SCRIPT_NAME']);
+?>
+
 <header style="display: flex; justify-content: space-between; align-items: center;">
-    
-    <p class="logo"><a href="index.php">Bana1Bilet</a></p>
+    <p class="logo"><a href="/index.php">Bana<strong>1</strong>Bilet</a></p>
+
     <div class="menu-toggle" id="menu-toggle">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
 
     <nav class="nav-links" id="nav-links">
         <?php if (isLoggedIn()): ?>
             <?php $role = $_SESSION['user']['role'] ?? ''; ?>
+
             <?php if ($role === 'admin'): ?>
-                <span>Admin - Hoş geldin, <strong><?= htmlspecialchars($_SESSION['user']['full_name']) ?></strong></span>
-                <a href="admin/panel.php">Admin Paneli</a>
-                <a href="admin/show_companies.php">Firmalar</a>
-                <a href="admin/show_company_admins.php">Firma Adminleri</a>
-                <a href="admin/coupons.php">Bütün Kuponlar</a>
-                <a href="logout.php">Oturumu Kapat</a>
+                <?php if ($currentPage !== 'panel.php'): ?>
+                    <a href="/admin/panel.php">
+                        <button class="header-auth-button login-button">Admin Paneli</button>
+                    </a>
+                <?php endif; ?>
+                <?php if ($currentPage !== 'logout.php'): ?>
+                    <a href="logout.php">
+                        <button class="header-auth-button">Çıkış Yap</button>
+                    </a>
+                <?php endif; ?>
+
             <?php elseif ($role === 'company'): ?>
-                <span>Firma - Hoş geldin, <strong><?= htmlspecialchars($_SESSION['user']['full_name']) ?></strong></span>
-                <a href="profile.php">Profilim</a>
-                <a href="company/panel.php">Firma Paneli</a>
-                <a href="company/trips.php">Seferlerim</a>
-                <a href="company/coupons.php">Firma Kuponları</a>
-                <a href="company/tickets.php">Biletler</a>
-                <a href="logout.php">Oturumu Kapat</a>
+                <?php if ($currentPage !== 'profile.php'): ?>
+                    <a href="profile.php">
+                        <button class="header-auth-button login-button">Profilim</button>
+                    </a>
+                <?php endif; ?>
+                <?php if ($currentPage !== 'panel.php'): ?>
+                    <a href="company/panel.php">
+                        <button class="header-auth-button login-button">Firma Paneli</button>
+                    </a>
+                <?php endif; ?>
+                <?php if ($currentPage !== 'logout.php'): ?>
+                    <a href="logout.php">
+                        <button class="header-auth-button">Çıkış Yap</button>
+                    </a>
+                <?php endif; ?>
+
             <?php else: ?>
-                <span>Hoş geldin, <strong><?= htmlspecialchars($_SESSION['user']['full_name']) ?></strong></span>
-                <a href="profile.php">Profilim</a>
-                <a href="my_tickets.php">Biletlerim</a>
-                <a href="logout.php">Oturumu Kapat</a>
+                <?php if ($currentPage !== 'my_tickets.php'): ?>
+                    <a href="my_tickets.php">
+                        <button class="header-auth-button non-bg-button">Biletlerim</button>
+                    </a>
+                <?php endif; ?>
+                <?php if ($currentPage !== 'profile.php'): ?>
+                    <a href="profile.php">
+                        <button class="header-auth-button login-button">Profilim</button>
+                    </a>
+                <?php endif; ?>
+                <?php if ($currentPage !== 'logout.php'): ?>
+                    <a href="logout.php">
+                        <button class="header-auth-button">Çıkış Yap</button>
+                    </a>
+                <?php endif; ?>
             <?php endif; ?>
+
         <?php else: ?>
-            <a href="login.php">Giriş Yap</a>
-            <a href="register.php">Kayıt Ol</a>
+            <a href="login.php">
+                <button class="header-auth-button login-button">Giriş Yap</button>
+            </a>
+            <a href="register.php">
+                <button class="header-auth-button">Kayıt Ol</button>
+            </a>
         <?php endif; ?>
     </nav>
 </header>

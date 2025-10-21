@@ -41,7 +41,7 @@ $page_title = "Bana1Bilet - Giriş Yap";
         .login-title{
             font-size: 20px;
             font-weight: bold;
-            margin: 16px;
+            margin: 20px;
             align-self: start;
         }
 

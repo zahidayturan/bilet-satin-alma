@@ -1,5 +1,5 @@
 <?php
-// footer.php — sayfa sonu
+
 ?>
 </main>
 <footer style="text-align:center;padding:6px;margin-top:20px;">
