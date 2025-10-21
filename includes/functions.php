@@ -347,6 +347,8 @@ function cancelTicketAndRefund(string $ticketId, string $companyId): array
     try {
         $pdo->beginTransaction();
 
+
+
         // 1. İlgili bilet bilgilerini al ve yetki/durum kontrolü yap
         $stmt = $pdo->prepare("
             SELECT t.total_price, t.status, t.user_id, tr.departure_time
@@ -368,11 +370,10 @@ function cancelTicketAndRefund(string $ticketId, string $companyId): array
         
         // Kalkışa kalan süre kontrolü (İş mantığı DB'ye taşınmaz, burada kalır)
         $hoursLeft = (strtotime($ticket['departure_time']) - time()) / 3600;
-        if ($hoursLeft < 1) {
+        if ($hoursLeft <= 1) {
             $pdo->rollBack();
             return ['success' => false, 'message' => "Kalkışa 1 saatten az kaldığı için iptal edilemez."];
         }
-
         // 2. Bileti iptal et
         $pdo->prepare("UPDATE Tickets SET status='canceled' WHERE id=?")->execute([$ticketId]);
 
@@ -722,7 +723,8 @@ function getUserTicketsDetails(string $userId): array
             SELECT 
                 t.id AS ticket_id, 
                 t.status, 
-                t.total_price, 
+                t.total_price,
+                t.created_at AS purchase_date, 
                 tr.departure_city, 
                 tr.destination_city, 
                 tr.departure_time, 

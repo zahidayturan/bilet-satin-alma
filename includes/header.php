@@ -100,7 +100,7 @@ require_once __DIR__ . '/../includes/functions.php';
 
             .header-auth-button {
                 width: 100%;
-            }   
+            }
         }
     </style>
 
@@ -116,6 +116,7 @@ require_once __DIR__ . '/../includes/functions.php';
     </script>
 </head>
 <body>
+<div class="page-wrapper">
 <?php
     $currentPage = basename($_SERVER['SCRIPT_NAME']);
 ?>
@@ -140,24 +141,24 @@ require_once __DIR__ . '/../includes/functions.php';
                     </a>
                 <?php endif; ?>
                 <?php if ($currentPage !== 'logout.php'): ?>
-                    <a href="logout.php">
+                    <a href="/logout.php">
                         <button class="header-auth-button">Çıkış Yap</button>
                     </a>
                 <?php endif; ?>
 
             <?php elseif ($role === 'company'): ?>
                 <?php if ($currentPage !== 'profile.php'): ?>
-                    <a href="profile.php">
+                    <a href="/profile.php">
                         <button class="header-auth-button login-button">Profilim</button>
                     </a>
                 <?php endif; ?>
                 <?php if ($currentPage !== 'panel.php'): ?>
-                    <a href="company/panel.php">
+                    <a href="/company/panel.php">
                         <button class="header-auth-button login-button">Firma Paneli</button>
                     </a>
                 <?php endif; ?>
                 <?php if ($currentPage !== 'logout.php'): ?>
-                    <a href="logout.php">
+                    <a href="/logout.php">
                         <button class="header-auth-button">Çıkış Yap</button>
                     </a>
                 <?php endif; ?>
@@ -190,3 +191,4 @@ require_once __DIR__ . '/../includes/functions.php';
         <?php endif; ?>
     </nav>
 </header>
+<main>

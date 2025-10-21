@@ -1,9 +1,29 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
-body { 
+html, body { 
+    min-height: 100%;
+}
+
+body {
     font-family: "Montserrat", sans-serif;
     background: #F2F2F2; 
-    margin: 20px; 
+    margin: 20px;
+}
+
+.page-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+footer {
+    text-align: center;
+    padding: 6px;
+    margin-top: 20px;
 }
 
 * {
@@ -120,12 +140,27 @@ button:hover {
     background: #2980b9;
 }
 
-.container { 
+.container-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 24px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.container-grid .container {
+    flex: 1 1 300px; /* Esnek genişlik: min 300px, büyüyebilir */
+    height: min-content;
     max-width: 500px;
-    margin: auto;
+}
+
+.container {
     background: #FFFFFF;
-    padding: 20px;
     border-radius: 10px;
+    padding: 20px;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .search-back-container {

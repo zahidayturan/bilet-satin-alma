@@ -39,16 +39,16 @@ $page_title = "Bana1Bilet - Kayıt Ol";
         body {
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
             min-height: 100dvh;
-            margin: 0;
+            margin: 0 12px;
         }
 
         .login-title{
             font-size: 20px;
             font-weight: bold;
-            margin: 20px;
+            margin: 20px 8px;
             align-self: start;
         }
 
@@ -59,7 +59,7 @@ $page_title = "Bana1Bilet - Kayıt Ol";
     </style>
 <body>
 <p class="login-title"><a href="index.php">Bana1Bilet</a></p>
-<div class="container" style="min-width:25%;">
+<div class="container" style="min-width:25%;max-width:400px;">
   <h2>Kayıt Ol</h2>
 
   <form method="POST" class="main-form">

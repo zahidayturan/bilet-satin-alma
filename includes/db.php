@@ -7,6 +7,9 @@ if (!file_exists(dirname($dbFile))) {
 
 try {
     $pdo = new PDO('sqlite:' . $dbFile);
+    
+    $pdo->setAttribute(PDO::ATTR_TIMEOUT, 5000); 
+
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->exec('PRAGMA foreign_keys = ON;');
 } catch (PDOException $e) {
