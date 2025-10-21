@@ -5,19 +5,33 @@ requireRole(['admin']);
 require_once __DIR__ . '/../../includes/functions.php';
 
 $id = $_GET['id'] ?? null;
-if (!$id) die("Geçersiz ID");
+if (!$id){
+  $errors[] = htmlspecialchars('Bilgiler alınamadı. Tekrar deneyin.');
+} 
 
 $errors = [];
 $success = '';
+
+if (isset($_SESSION['success_message'])) {
+    $success = htmlspecialchars($_SESSION['success_message']);
+    unset($_SESSION['success_message']);
+}
+if (isset($_SESSION['error_message'])) {
+    $error[] = htmlspecialchars($_SESSION['error_message']);
+    unset($_SESSION['error_message']);
+}
 
 // 1. Firma listesini çekme (Dropdown için)
 $companies = getCompanyListForDropdown();
 
 // 2. Firma admin bilgisini çekme
 $admin = getCompanyAdminById($id);
-if (!$admin) die("Firma admini bulunamadı.");
+if (!$admin){
+  $errors[] = htmlspecialchars('Firma admini bulunamadı.');
+} 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
     if (isset($_POST['update_info'])) {
         // Bilgi güncelleme
         $fullName = $_POST['full_name'];
@@ -25,11 +39,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $companyId = $_POST['company_id'];
 
         if (updateCompanyAdminInfo($id, $fullName, $email, $companyId)) {
-            $success = "Bilgiler başarıyla güncellendi. ✅";
-            // Güncel veriyi formda göstermek için yeniden çekelim
-            $admin = getCompanyAdminById($id); 
+           $_SESSION['success_message'] = "Bilgiler başarıyla güncellendi.";
         } else {
-            $errors[] = "Bilgiler güncellenirken bir hata oluştu. (E-posta zaten kullanılıyor olabilir) ❌";
+            $_SESSION['error_message'] = "Bilgiler güncellenirken bir hata oluştu. (E-posta zaten kullanılıyor olabilir)";
         }
     }
 
@@ -40,76 +52,84 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $confirm = $_POST['confirm_password'];
 
         if (!password_verify($old, $admin['password'])) {
-            $errors[] = "Eski şifre hatalı. ❌";
+            $_SESSION['error_message'] = "Eski şifre hatalı.";
         } elseif ($new !== $confirm) {
-            $errors[] = "Yeni şifreler eşleşmiyor. ❌";
+            $_SESSION['error_message'] = "Yeni şifreler eşleşmiyor.";
         } elseif (strlen($new) < 5) {
-            $errors[] = "Yeni şifre en az 5 karakter olmalı. ❌";
+            $_SESSION['error_message'] = "Yeni şifre en az 5 karakter olmalı.";
         } else {
             $hashed = password_hash($new, PASSWORD_BCRYPT);
             
             if (updateCompanyAdminPassword($id, $hashed)) {
-                $success = "Şifre başarıyla güncellendi. ✅";
+                $_SESSION['success_message'] = "Şifre başarıyla güncellendi.";
             } else {
-                $errors[] = "Şifre güncellenirken bir veritabanı hatası oluştu. ❌";
+                $_SESSION['error_message'] = "Şifre güncellenirken bir veritabanı hatası oluştu.";
             }
         }
     }
+
+    header("Location: edit_company_admin.php?id=" . urlencode($id));
+    exit;
 }
 
 $page_title = "Bana1Bilet - Sistem Yönetimi";
 require_once __DIR__ . '/../../includes/header.php';
 ?>
 
-<h2>✏️ Firma Admin Düzenle</h2>
-<a href="show_company_admins.php">← Geri Dön</a>
-<hr>
+<div style="margin-bottom:20px;"><a href="show_company_admins.php">← Firma Adminlerine Geri Dön</a></div>
 
-<?php if ($errors): ?>
-  <div style="color:red;padding:10px;border:1px solid red;background-color:#ffe6e6;">
-    <?php foreach ($errors as $e): ?><div><?= htmlspecialchars($e) ?></div><?php endforeach; ?>
+<?php
+    require_once __DIR__ . '/../../includes/message_comp.php';
+?>
+
+<?php if ($admin): ?>
+  <h2>✏️ Firma Admin Düzenle</h2>
+
+  <div class="container-grid" style="grid-template-columns: 1fr 1fr; gap: 20px;justify-content: start;">
+    <div class="container">
+      <h3>Firma Admin Bilgilerini Güncelle</h3>
+      <form method="POST">
+        <label>Ad Soyad</label>
+        <input type="text" name="full_name" value="<?= htmlspecialchars($admin['full_name']) ?>" required><br><br>
+
+        <label>E-posta</label>
+        <input type="email" name="email" value="<?= htmlspecialchars($admin['email']) ?>" required><br><br>
+
+        <label>Firma</label>
+        <select name="company_id" required>
+          <?php foreach ($companies as $cmp): ?>
+            <option value="<?= htmlspecialchars($cmp['id']) ?>" <?= $cmp['id'] === $admin['company_id'] ? 'selected' : '' ?>>
+              <?= htmlspecialchars($cmp['name']) ?>
+            </option>
+          <?php endforeach; ?>
+        </select><br><br>
+
+        <button class="form-button" type="submit" name="update_info">Bilgileri Güncelle</button>
+      </form>
+    </div>
+
+    <div class="container">
+      <h3>Firma Admin Şifresini Değiştir</h3>
+      <form method="POST">
+        <label>Eski Şifre</label>
+        <input type="password" name="old_password" required><br><br>
+
+        <label>Yeni Şifre</label>
+        <input type="password" name="new_password" required><br><br>
+
+        <label>Yeni Şifre (Tekrar)</label>
+        <input type="password" name="confirm_password" required><br><br>
+
+        <button class="form-button" type="submit" name="change_password">Şifreyi Güncelle</button>
+      </form>
+    </div>
   </div>
+<?php else: ?>
+    <p style="text-align:center;margin-top:20px;">Firma admini bulunamadı.</p>
+    <a href="/index.php"><p style="text-align:center;">Ana Sayfaya Dön</p></a>
 <?php endif; ?>
 
-<?php if ($success): ?>
-  <div style="color:green;padding:10px;border:1px solid green;background-color:#e6ffe6;"><?= htmlspecialchars($success) ?></div>
-<?php endif; ?>
 
-<h3>Bilgileri Güncelle</h3>
-<form method="POST">
-  <label>Ad Soyad:</label>
-  <input type="text" name="full_name" value="<?= htmlspecialchars($admin['full_name']) ?>" required><br><br>
-
-  <label>E-posta:</label>
-  <input type="email" name="email" value="<?= htmlspecialchars($admin['email']) ?>" required><br><br>
-
-  <label>Firma:</label>
-  <select name="company_id" required>
-    <?php foreach ($companies as $cmp): ?>
-      <option value="<?= htmlspecialchars($cmp['id']) ?>" <?= $cmp['id'] === $admin['company_id'] ? 'selected' : '' ?>>
-        <?= htmlspecialchars($cmp['name']) ?>
-      </option>
-    <?php endforeach; ?>
-  </select><br><br>
-
-  <button type="submit" name="update_info">Bilgileri Güncelle</button>
-</form>
-
-<hr>
-
-<h3>Şifre Değiştir</h3>
-<form method="POST">
-  <label>Eski Şifre:</label>
-  <input type="password" name="old_password" required><br><br>
-
-  <label>Yeni Şifre:</label>
-  <input type="password" name="new_password" required><br><br>
-
-  <label>Yeni Şifre (Tekrar):</label>
-  <input type="password" name="confirm_password" required><br><br>
-
-  <button type="submit" name="change_password">Şifreyi Güncelle</button>
-</form>
 
 <?php
 require_once __DIR__ . '/../../includes/footer.php';

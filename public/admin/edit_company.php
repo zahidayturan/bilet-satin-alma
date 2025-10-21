@@ -6,12 +6,23 @@ require_once __DIR__ . '/../../includes/functions.php';
 $id = $_GET['id'] ?? null;
 if (!$id) die("Geçersiz ID");
 
-$errorMsg = '';
-$successMsg = '';
+$error = [];
+$success = "";
 
 // 1. Firma bilgisini çekme
 $company = getBusCompanyById($id);
-if (!$company) die("Firma bulunamadı.");
+if (!$company){
+  $error[] = htmlspecialchars('Firma bulunamadı.');
+} 
+
+if (isset($_SESSION['success_message'])) {
+    $success = htmlspecialchars($_SESSION['success_message']);
+    unset($_SESSION['success_message']);
+}
+if (isset($_SESSION['error_message'])) {
+    $error[] = htmlspecialchars($_SESSION['error_message']);
+    unset($_SESSION['error_message']);
+}
 
 // 2. Firma güncelleme
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -19,39 +30,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $logo = trim($_POST['logo_path'] ?? '');
 
     if (updateBusCompany($id, $name, $logo)) {
-        $successMsg = "Firma bilgileri başarıyla güncellendi. ✅";
-        
-        // Güncellenmiş veriyi formda göstermek için yeniden çekelim
-        $company = getBusCompanyById($id); 
+        $_SESSION['success_message'] = "Firma bilgileri başarıyla güncellendi.";
     } else {
-        $errorMsg = "Güncelleme hatası! Veritabanı sorunu oluştu. ❌";
+        $_SESSION['error_message'] = "Güncelleme hatası! Veritabanı sorunu oluştu.";
     }
+
+    header("Location: edit_company.php?id=" . urlencode($id));
+    exit;
 }
 
 $page_title = "Bana1Bilet - Sistem Yönetimi";
 require_once __DIR__ . '/../../includes/header.php';
 ?>
 
-<h2>✏️ Firma Düzenle</h2>
-<a href="show_company_admins.php">← Geri Dön</a>
-<hr>
+<div style="margin-bottom:20px;"><a href="show_companies.php">← Firmalara Geri Dön</a></div>
 
-<?php if ($errorMsg): ?>
-  <div style="color:red;padding:10px;border:1px solid red;background-color:#ffe6e6;"><?= htmlspecialchars($errorMsg) ?></div>
+<?php
+    require_once __DIR__ . '/../../includes/message_comp.php';
+?>
+
+<?php if ($company): ?>
+  <div class="table-container">
+    <h2>✏️ Firma Düzenle</h2>
+
+    <form method="POST">
+        <label>Firma Adı</label>
+        <input type="text" name="name" value="<?= htmlspecialchars($company['name']) ?>" required><br><br>
+
+        <label>Logo Yolu</label>
+        <input type="text" name="logo_path" value="<?= htmlspecialchars($company['logo_path']) ?>"><br><br>
+
+        <button class="form-button" type="submit">Kaydet</button>
+    </form>
+</div>
+<?php else: ?>
+    <p style="text-align:center;margin-top:20px;">Firma bulunamadı.</p>
+    <a href="/index.php"><p style="text-align:center;">Ana Sayfaya Dön</p></a>
 <?php endif; ?>
-<?php if ($successMsg): ?>
-  <div style="color:green;padding:10px;border:1px solid green;background-color:#e6ffe6;"><?= htmlspecialchars($successMsg) ?></div>
-<?php endif; ?>
-
-<form method="POST">
-  <label>Firma Adı:</label>
-  <input type="text" name="name" value="<?= htmlspecialchars($company['name']) ?>" required><br><br>
-
-  <label>Logo Yolu:</label>
-  <input type="text" name="logo_path" value="<?= htmlspecialchars($company['logo_path']) ?>"><br><br>
-
-  <button type="submit">Kaydet</button>
-</form>
 
 <?php
 require_once __DIR__ . '/../../includes/footer.php';

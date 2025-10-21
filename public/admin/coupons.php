@@ -3,8 +3,17 @@ require_once __DIR__ . '/../../includes/auth.php';
 requireRole(['admin']);
 require_once __DIR__ . '/../../includes/functions.php';
 
-$errorMsg = '';
-$successMsg = '';
+$errors = [];
+$success = '';
+
+if (isset($_SESSION['success_message'])) {
+    $success = htmlspecialchars($_SESSION['success_message']);
+    unset($_SESSION['success_message']);
+}
+if (isset($_SESSION['error_message'])) {
+    $error[] = htmlspecialchars($_SESSION['error_message']);
+    unset($_SESSION['error_message']);
+}
 
 // Yeni kupon ekleme
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code'])) {
@@ -15,19 +24,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code'])) {
     $company_id = $_POST['company_id'] ?: null;
 
     if (addCoupon($code, $discount, $usage_limit, $expire_date, $company_id)) {
-        $successMsg = "Kupon başarıyla eklendi. ✅";
+        $_SESSION['success_message'] = "Kupon başarıyla eklendi.";
     } else {
-        $errorMsg = "Kupon eklenirken bir hata oluştu. (Kod zaten mevcut olabilir) ❌";
+        $_SESSION['error_message'] = "Kupon eklenirken bir hata oluştu. (Kod zaten mevcut olabilir)";
     }
+    header("Location: coupons.php");
+    exit;
 }
 
 // Kupon silme
 if (isset($_GET['delete'])) {
     if (deleteCoupon($_GET['delete'])) {
-        $successMsg = "Kupon başarıyla silindi. 🗑️";
+        $_SESSION['success_message'] = "Kupon başarıyla silindi.";
     } else {
-        $errorMsg = "Kupon silinirken bir hata oluştu. ❌";
+        $_SESSION['error_message'] = "Kupon silinirken bir hata oluştu.";
     }
+    header("Location: coupons.php");
+    exit;
 }
 
 // Firma listesi
@@ -40,74 +53,94 @@ $page_title = "Bana1Bilet - Sistem Yönetimi";
 require_once __DIR__ . '/../../includes/header.php';
 ?>
 
-<h2>🎟️ Kupon Yönetimi (Admin)</h2>
-<a href="panel.php">← Admin Paneli</a>
-<hr>
+<div style="margin-bottom: 20px;"><a href="panel.php">← Admin Paneli</a></div>
 
-<?php if ($errorMsg): ?><div style="color:red;padding:10px;border:1px solid red;background-color:#ffe6e6;"><?= htmlspecialchars($errorMsg) ?></div><?php endif; ?>
-<?php if ($successMsg): ?><div style="color:green;padding:10px;border:1px solid green;background-color:#e6ffe6;"><?= htmlspecialchars($successMsg) ?></div><?php endif; ?>
+<?php
+    require_once __DIR__ . '/../../includes/message_comp.php';
+?>
 
-<h3>➕ Yeni Kupon Ekle</h3>
-<form method="POST">
-    <label>Kod:</label>
-    <input type="text" name="code" required>
-    <label>İndirim (%):</label>
-    <input type="number" step="0.01" name="discount" required>
-    <label>Kullanım Limiti:</label>
-    <input type="number" name="usage_limit" required>
-    <label>Son Kullanma Tarihi:</label>
-    <input type="date" name="expire_date" required>
+<h2>🎟️ Kupon Yönetimi</h2>
 
-    <label>Firma:</label>
-    <select name="company_id">
-        <option value="">(Tüm Firmalar için geçerli)</option>
-        <?php foreach ($companies as $comp): ?>
-            <option value="<?= htmlspecialchars($comp['id']) ?>"><?= htmlspecialchars($comp['name']) ?></option>
-        <?php endforeach; ?>
-    </select>
+<div class="container">
+    <h3>Yeni Kupon Ekle</h3>
+    <form method="POST">
 
-    <button type="submit">Kupon Ekle</button>
-</form>
+        <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
+            <div style="flex: 1 0 150px;">
+                <label>Kod</label>
+                <input type="text" name="code" required>
+            </div>
 
-<hr>
-<h3>📋 Mevcut Kuponlar</h3>
-<table border="1" cellpadding="6" cellspacing="0">
-    <tr>
-        <th>Kod</th>
-        <th>İndirim</th>
-        <th>Kullanım Limiti</th>
-        <th>Kullanılan</th>
-        <th>Kalan</th>
-        <th>Son Tarih</th>
-        <th>Firma</th>
-        <th>İşlem</th>
-    </tr>
+            <div style="flex: 1 0 150px;">
+                <label>Son Kullanma Tarihi</label>
+                <input type="date" name="expire_date" required>
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
+            <div style="flex: 1 0 150px;">
+                <label>İndirim (%)</label>
+                <input type="number" step="0.01" name="discount" required>
+            </div>
+            <div style="flex: 1 0 150px;">
+                <label>Kullanım Limiti</label>
+                <input type="number" name="usage_limit" required>
+            </div>
+        </div>
 
-    <?php if (empty($coupons)): ?>
-        <tr><td colspan="8" style="text-align:center;">Henüz kupon eklenmemiş.</td></tr>
-    <?php else: ?>
-        <?php foreach ($coupons as $c): ?>
-            <?php
-                $used = (int)$c['used_count'];
-                $limit = (int)$c['usage_limit'];
-                $remaining = $limit - $used;
-            ?>
-            <tr>
-                <td><?= htmlspecialchars($c['code']) ?></td>
-                <td>%<?= htmlspecialchars($c['discount']) ?></td>
-                <td><?= $limit ?></td>
-                <td><?= $used ?></td>
-                <td><?= max(0, $remaining) ?></td>
-                <td><?= htmlspecialchars($c['expire_date']) ?></td>
-                <td><?= $c['company_name'] ? htmlspecialchars($c['company_name']) : '<em>Global</em>' ?></td>
-                <td>
-                    <a href="edit_coupon.php?id=<?= urlencode($c['id']) ?>">✏️ Düzenle</a> |
-                    <a href="?delete=<?= urlencode($c['id']) ?>" onclick="return confirm('Bu kupon silinsin mi?')">❌ Sil</a>
-                </td>
-            </tr>
-        <?php endforeach; ?>
-    <?php endif; ?>
-</table>
+        <label>Firma:</label>
+        <select name="company_id">
+            <option value="">(Tüm Firmalar için geçerli)</option>
+            <?php foreach ($companies as $comp): ?>
+                <option value="<?= htmlspecialchars($comp['id']) ?>"><?= htmlspecialchars($comp['name']) ?></option>
+            <?php endforeach; ?>
+        </select>
+
+        <button class="form-button" style="margin-top:20px;" type="submit">Kupon Ekle</button>
+    </form>
+</div>
+
+<div class="table-container" style="margin-top:20px;">
+    <h3>📋 Mevcut Kuponlar</h3>
+    <table>
+        <tr>
+            <th>Kod</th>
+            <th>İndirim</th>
+            <th>Kullanım Limiti</th>
+            <th>Kullanılan</th>
+            <th>Kalan</th>
+            <th>Son Tarih</th>
+            <th>Firma</th>
+            <th>İşlem</th>
+        </tr>
+
+        <?php if (empty($coupons)): ?>
+            <tr><td colspan="8">Henüz kupon eklenmemiş.</td></tr>
+        <?php else: ?>
+            <?php foreach ($coupons as $c): ?>
+                <?php
+                    $used = (int)$c['used_count'];
+                    $limit = (int)$c['usage_limit'];
+                    $remaining = $limit - $used;
+                ?>
+                <tr>
+                    <td><?= htmlspecialchars($c['code']) ?></td>
+                    <td>%<?= htmlspecialchars($c['discount']) ?></td>
+                    <td><?= $limit ?></td>
+                    <td><?= $used ?></td>
+                    <td><?= max(0, $remaining) ?></td>
+                    <td><?= htmlspecialchars($c['expire_date']) ?></td>
+                    <td><?= $c['company_name'] ? htmlspecialchars($c['company_name']) : '<em>Hepsinde Geçerli</em>' ?></td>
+                    <td>
+                        <a href="edit_coupon.php?id=<?= urlencode($c['id']) ?>">✏️ Düzenle</a> |
+                        <a href="?delete=<?= urlencode($c['id']) ?>" onclick="return confirm('Bu kupon silinsin mi?')">❌ Sil</a>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </table>
+</div>
+
 
 <?php
 require_once __DIR__ . '/../../includes/footer.php';

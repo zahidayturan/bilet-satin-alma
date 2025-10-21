@@ -163,6 +163,25 @@ button:hover {
     width: 100%;
 }
 
+.panel-container {
+    min-height: 160px;
+    min-width: 200px;
+    max-height: 260px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.panel-container p {
+    color: #0D0D0D;
+    max-width: 180px;
+    margin: 36px 0 0 0;
+}
+
+.panel-container:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
 .search-back-container {
     border-radius: 8px;
     padding: 24px 0;
@@ -230,6 +249,16 @@ input {
     width: 100%;
     box-sizing: border-box;
     border-radius: 4px;
+    font-family: "Montserrat", sans-serif;
+}
+
+select {
+    padding: 12px 6px;
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 4px;
+    border: 2px solid #0D0D0D;
+    font-family: "Montserrat", sans-serif;
 }
 
 /* =============================================
@@ -336,6 +365,7 @@ input {
     width: 100%;
     cursor: pointer;
     font-size: 14px;
+    font-family: "Montserrat", sans-serif;
 }
 
 .form-button:hover {

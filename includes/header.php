@@ -60,6 +60,7 @@ require_once __DIR__ . '/../includes/functions.php';
             font-size: 13px;
             border: none;
             cursor: pointer;
+            font-family: "Montserrat", sans-serif;
         }
 
         .login-button {
