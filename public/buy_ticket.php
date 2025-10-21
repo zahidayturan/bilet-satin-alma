@@ -4,29 +4,43 @@ requireRole(['user']);
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/functions.php';
 
+$error = [];
+$success = "";
+
+
 $trip_id = $_GET['id'] ?? null;
-if (!$trip_id) die("Geçersiz sefer ID");
+if (!$trip_id){
+    $error[] = 'Bilgiler alınamadı';
+};
 
 $user_id = $_SESSION['user']['id'];
 
 // Kullanıcı bilgisi
 $user = getUserProfileDetails($user_id); 
-if (!$user) die("Kullanıcı bilgisi bulunamadı.");
+if (!$user){
+    $error[] = 'Kullanıcı bilgisi bulunamadı';
+};
 
 // Sefer ve firma bilgisi
 $trip = getTripDetailsForPurchase($trip_id);
-if (!$trip) die("Sefer bulunamadı.");
+if (!$trip){
+    $error[] = 'Sefer bulunamadı';
+} else {
+    // Dolu koltuklar
+    $bookedSeats = getBookedSeatsForTrip($trip_id);
+    $capacity = (int)$trip['capacity'];
+};
 
 // Geçmiş sefer kontrolü
 if (isset($trip['error'])) {
-    die(htmlspecialchars($trip['error']));
-}
-
-// Dolu koltuklar
-$bookedSeats = getBookedSeatsForTrip($trip_id);
-$capacity = (int)$trip['capacity'];
+    $error[] = htmlspecialchars($trip['error']);
+};
 
 require_once __DIR__ . '/../includes/header.php';
+?>
+
+<?php
+    require_once __DIR__ . '/../includes/message_comp.php';
 ?>
 
 <head>
@@ -111,7 +125,7 @@ require_once __DIR__ . '/../includes/header.php';
             flex-direction: row;
             align-items: end;
         }
-        .info {
+        .info-box {
             background: #f4f4f4;
             padding: 10px;
             border-radius: 6px;
@@ -120,6 +134,7 @@ require_once __DIR__ . '/../includes/header.php';
 </head>
 <body>
 
+<?php if ($trip): ?>
 <div class="container">
     <a class="back-link" href="trip_detail.php?id=<?= urlencode($trip_id) ?>">← Sefer Detayına Geri Dön</a>
 
@@ -195,7 +210,7 @@ require_once __DIR__ . '/../includes/header.php';
 
         <br>
         
-        <div class="info">
+        <div class="info-box">
             <p style="text-align:center;"><strong>Bakiyeniz:</strong> <?= $user['balance'] ?> ₺</p>
             <p style="text-align:center;margin:8px 0;"><strong>Ödenecek Tutar:</strong> <span id="finalDisplayPrice"><?= number_format($trip['price'], 2) ?></span> ₺</p>
         </div>
@@ -203,6 +218,10 @@ require_once __DIR__ . '/../includes/header.php';
         <button class="form-button" type="submit">💳 Bileti Satın Al</button>
     </form>
 </div>
+<?php else: ?>
+    <p style="text-align:center;margin-top:20px;">Sefer bulunamadı.</p>
+    <a href="/index.php"><p style="text-align:center;">Ana Sayfaya Dön</p></a>
+<?php endif; ?>
 
 <script>
 const seats = document.querySelectorAll('.seat:not(.corridor)');

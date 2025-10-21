@@ -26,7 +26,7 @@ $page_title = "Bana1Bilet - Giriş Yap";
     <meta charset="UTF-8">
     <title><?= $page_title ?? 'Bana1Bilet' ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
 </head>
     <style>
         body {
@@ -36,6 +36,10 @@ $page_title = "Bana1Bilet - Giriş Yap";
             align-items: center;
             min-height: 100dvh;
             margin: 0 12px;
+            background-image: url('/assets/images/bg-line.png');
+            background-size: auto, auto;
+            background-repeat: no-repeat, repeat;
+            background-position: center, 0 0;
         }
 
         .login-title{

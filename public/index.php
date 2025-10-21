@@ -46,8 +46,7 @@ require_once __DIR__ . '/../includes/header.php';
     <table>
     <tr>
       <th>Firma</th>
-      <th>Nereden</th>
-      <th>Nereye</th>
+      <th>Nereden → Nereye</th>
       <th>Kalkış Tarihi</th>
       <th>Sefer Süresi</th>
       <th>Fiyat</th>
@@ -64,8 +63,7 @@ require_once __DIR__ . '/../includes/header.php';
       ?>
       <tr>
         <td><?= htmlspecialchars($trip['company_name']) ?></td>
-        <td><strong><?= htmlspecialchars($trip['departure_city']) ?></strong></td>
-        <td><strong><?= htmlspecialchars($trip['destination_city']) ?></strong></td>
+        <td><strong><?= htmlspecialchars($trip['departure_city']) ?> → <?= htmlspecialchars($trip['destination_city']) ?></strong></td>
         <td><?= date('d.m.Y H:i', strtotime($trip['departure_time'])) ?></td>
         <td>
           <?php

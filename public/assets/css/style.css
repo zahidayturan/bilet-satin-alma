@@ -148,8 +148,6 @@ button:hover {
 .search-back-container {
     border-radius: 8px;
     padding: 24px 0;
-    background: #011526;
-    background: linear-gradient(90deg,rgba(1, 21, 38, 1) 0%, rgba(34, 74, 89, 1) 100%);
     width: 100%;
     margin-bottom: 20px;
     display: flex;
@@ -157,6 +155,12 @@ button:hover {
     align-items: center;
     color: white;
     gap: 24px;
+    background-image: 
+        url('/assets/images/bg-line.png'), 
+        linear-gradient(90deg, rgba(1, 21, 38, 1) 0%, rgba(34, 74, 89, 1) 100%);
+    background-size: auto, auto;
+    background-repeat: no-repeat, repeat;
+    background-position: center, 0 0;
 }
 
 .search-form {
@@ -188,8 +192,27 @@ button:hover {
     font-size: 16px;
 }
 
-.info {
-    padding: 0 0 0 10px;
+.info-wrapper {
+    display: flex;
+    flex-direction: row; 
+    width: 100%;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.info-container {
+    width: 100%;
+    max-width: 380px;
+    padding: 8px;
+    border-radius: 8px;
+    background: #F2F2F2;
+    text-align: center;
+}
+
+.info-container p{
+    margin-bottom: 8px;
+    margin-left: 8px;
 }
 
 label {

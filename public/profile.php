@@ -59,7 +59,7 @@ require_once __DIR__ . '/../includes/message_comp.php';
   
   <div class="container">
     <h2>Kişisel Bilgiler</h2>
-    <div class="info">
+    <div style="padding: 0 0 0 10px;">
       <p><strong>Ad Soyad:</strong> <?= htmlspecialchars($profile['full_name']) ?></p>
       <p><strong>E-posta:</strong> <?= htmlspecialchars($profile['email']) ?></p>
       <p><strong>Katılma Tarihi:</strong> <?= htmlspecialchars(ucfirst($profile['created_at'])) ?></p>
