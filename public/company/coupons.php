@@ -100,6 +100,71 @@ require_once __DIR__ . '/../../includes/header.php';
 </div>
 
 
+<?php
+// ... [Mevcut PHP kodlarınız ve kuponların çekilmesi] ...
+
+// getSortLink fonksiyonunun bu dosyada tanımlı olduğunu varsayıyoruz.
+function getSortLink($column, $current_sort, $current_order, $label) {
+    $new_order = ($current_sort === $column && $current_order === 'asc') ? 'desc' : 'asc';
+    
+    $arrow = '';
+    if ($current_sort === $column) {
+        $arrow = $current_order === 'asc' ? ' ▲' : ' ▼';
+    }
+
+    // Link hedefini doğru dosya adına göre ayarlayın (Örn: 'company_coupons.php')
+    $link = htmlspecialchars("coupons.php?sort={$column}&order={$new_order}"); 
+    return "<a style=\"text-decoration:underline;\" href=\"{$link}\">{$label}{$arrow}</a>";
+}
+
+// --- Sıralama İşlemi Başlangıcı ---
+$sort_by = $_GET['sort'] ?? 'expire_date';
+$sort_order = strtolower($_GET['order'] ?? 'asc');
+
+$allowed_sorts = [
+    'code',
+    'discount',
+    'usage_limit',
+    'used_count',
+    'expire_date'
+];
+
+if (!in_array($sort_by, $allowed_sorts)) {
+    $sort_by = 'expire_date';
+}
+if (!in_array($sort_order, ['asc', 'desc'])) {
+    $sort_order = 'asc';
+}
+
+if (!empty($coupons)) {
+    usort($coupons, function($a, $b) use ($sort_by, $sort_order) {
+        $a_val = $a[$sort_by] ?? '';
+        $b_val = $b[$sort_by] ?? '';
+
+        if (in_array($sort_by, ['discount', 'usage_limit', 'used_count'])) {
+             $a_val = (int)$a_val;
+             $b_val = (int)$b_val;
+        }
+        
+        if ($sort_by === 'expire_date') {
+             $a_val = strtotime($a_val);
+             $b_val = strtotime($b_val);
+        }
+
+        if ($a_val == $b_val) {
+            return 0;
+        }
+
+        if ($sort_order === 'asc') {
+            return ($a_val < $b_val) ? -1 : 1;
+        } else {
+            return ($a_val > $b_val) ? -1 : 1;
+        }
+    });
+}
+?>
+
+
 <div class="container" style="margin-top:8px;">
     <h3>Mevcut Kuponlarım</h3>
     <?php if (empty($coupons)): ?>
@@ -107,13 +172,13 @@ require_once __DIR__ . '/../../includes/header.php';
     <?php else: ?>
         <table>
             <tr>
-              <th>Kod</th>
-              <th>İndirim</th>
-              <th>Kullanım Limiti</th>
-              <th>Kullanılan</th>
-              <th>Kalan</th>
-              <th>Son Tarih</th>
-              <th>İşlem</th>
+                <th><?= getSortLink('code', $sort_by, $sort_order, 'Kod') ?></th>
+                <th><?= getSortLink('discount', $sort_by, $sort_order, 'İndirim') ?></th>
+                <th><?= getSortLink('usage_limit', $sort_by, $sort_order, 'Kullanım Limiti') ?></th>
+                <th><?= getSortLink('used_count', $sort_by, $sort_order, 'Kullanılan') ?></th>
+                <th>Kalan</th>
+                <th><?= getSortLink('expire_date', $sort_by, $sort_order, 'Son Tarih') ?></th>
+                <th>İşlem</th>
             </tr>
 
             <?php foreach ($coupons as $c): ?>

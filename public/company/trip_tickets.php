@@ -57,21 +57,87 @@ require_once __DIR__ . '/../../includes/header.php';
     require_once __DIR__ . '/../../includes/message_comp.php';
 ?>
 
+<?php
+// ... [Mevcut PHP kodlarınız, biletlerin çekilmesi, $trip ve $trip_id tanımlanması] ...
+
+// getSortLink fonksiyonunun bu dosyada (trip_tickets.php) tanımlandığını varsayıyoruz.
+// NOT: Link hedefini 'trip_tickets.php' olarak güncelleyip $trip_id parametresini koruyoruz.
+function getSortLink($column, $current_sort, $current_order, $label, $trip_id) {
+    $new_order = ($current_sort === $column && $current_order === 'asc') ? 'desc' : 'asc';
+    
+    $arrow = '';
+    if ($current_sort === $column) {
+        $arrow = $current_order === 'asc' ? ' ▲' : ' ▼';
+    }
+
+    // trip_id parametresini her zaman korumak önemli
+    $link = htmlspecialchars("trip_tickets.php?trip_id={$trip_id}&sort={$column}&order={$new_order}"); 
+    return "<a style=\"text-decoration:underline;\" href=\"{$link}\">{$label}{$arrow}</a>";
+}
+
+// --- Sıralama İşlemi Başlangıcı ---
+$sort_by = $_GET['sort'] ?? 'purchase_date';
+$sort_order = strtolower($_GET['order'] ?? 'desc');
+
+$allowed_sorts = [
+    'purchase_date',
+    'seat_number',
+    'full_name',
+    'email',
+    'status',
+    'total_price'
+];
+
+if (!in_array($sort_by, $allowed_sorts)) {
+    $sort_by = 'purchase_date';
+}
+if (!in_array($sort_order, ['asc', 'desc'])) {
+    $sort_order = 'desc';
+}
+
+if (!empty($tickets)) {
+    usort($tickets, function($a, $b) use ($sort_by, $sort_order) {
+        $a_val = $a[$sort_by] ?? '';
+        $b_val = $b[$sort_by] ?? '';
+
+        if ($sort_by === 'purchase_date') {
+             $a_val = strtotime($a_val);
+             $b_val = strtotime($b_val);
+        }
+        
+        if ($sort_by === 'total_price') {
+             $a_val = (float)$a_val;
+             $b_val = (float)$b_val;
+        }
+
+        if ($a_val == $b_val) {
+            return 0;
+        }
+
+        if ($sort_order === 'asc') {
+            return ($a_val < $b_val) ? -1 : 1;
+        } else {
+            return ($a_val > $b_val) ? -1 : 1;
+        }
+    });
+}
+?>
+
 <?php if ($trip): ?>
 <div class="table-container">
   <h2>🎟️ Bilet Listesi</h2>
   <p><strong><?= htmlspecialchars($trip['departure_city']) ?> → <?= htmlspecialchars($trip['destination_city']) ?> - (<?= date('d.m.Y H:i', strtotime($trip['departure_time'])) ?>) - (<?= htmlspecialchars($trip['price']) ?> ₺)</strong></p>
 
   <table>
-  <tr>
-      <th>Satın Alım Zamanı</th>
-      <th>Koltuk No</th>
-      <th>Yolcu Adı</th>
-      <th>Email</th>
-      <th>Durum</th>
-      <th>Ücret</th>
-      <th>İşlem</th>
-  </tr>
+    <tr>
+        <th><?= getSortLink('purchase_date', $sort_by, $sort_order, 'Satın Alım Zamanı', $trip_id) ?></th>
+        <th><?= getSortLink('seat_number', $sort_by, $sort_order, 'Koltuk No', $trip_id) ?></th>
+        <th><?= getSortLink('full_name', $sort_by, $sort_order, 'Yolcu Adı', $trip_id) ?></th>
+        <th><?= getSortLink('email', $sort_by, $sort_order, 'Email', $trip_id) ?></th>
+        <th><?= getSortLink('status', $sort_by, $sort_order, 'Durum', $trip_id) ?></th>
+        <th><?= getSortLink('total_price', $sort_by, $sort_order, 'Ücret', $trip_id) ?></th>
+        <th>İşlem</th>
+    </tr>
 
   <?php if ($tickets): ?>
       <?php foreach ($tickets as $tk): ?>
@@ -79,7 +145,7 @@ require_once __DIR__ . '/../../includes/header.php';
               $hoursLeft = (strtotime($tk['departure_time']) - time()) / 3600; 
           ?>
       <tr>
-          <td><?= htmlspecialchars($tk['purchase_date']) ?></td>
+          <td><?= date('d.m.Y H:i', strtotime($tk['purchase_date']))?></td>
           <td><?= htmlspecialchars($tk['seat_number'] ?? 'Bilinmiyor') ?></td>
           <td><?= htmlspecialchars($tk['full_name']) ?></td>
           <td><?= htmlspecialchars($tk['email']) ?></td>
@@ -117,7 +183,7 @@ require_once __DIR__ . '/../../includes/header.php';
       </tr>
       <?php endforeach; ?>
   <?php else: ?>
-      <tr><td colspan="6" style="text-align:center;">Bu sefere ait bilet bulunamadı.</td></tr>
+      <tr><td colspan="7" style="text-align:center;">Bu sefere ait bilet bulunamadı.</td></tr>
   <?php endif; ?>
   </table>
 </div>

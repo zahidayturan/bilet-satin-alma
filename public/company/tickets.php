@@ -77,6 +77,39 @@ require_once __DIR__ . '/../../includes/header.php';
   </form>
 </div>
 
+<?php
+
+function getSortLink($column, $current_sort, $current_order, $label) {
+    $new_order = ($current_sort === $column && $current_order === 'asc') ? 'desc' : 'asc';
+    
+    $arrow = '';
+    if ($current_sort === $column) {
+        $arrow = $current_order === 'asc' ? ' ▲' : ' ▼';
+    }
+
+    $link = htmlspecialchars("tickets.php?sort={$column}&order={$new_order}"); 
+    return "<a style=\"text-decoration:underline;\" href=\"{$link}\">{$label}{$arrow}</a>";
+}
+
+// --- Genel Sıralama Parametreleri Başlangıcı ---
+$sort_by = $_GET['sort'] ?? 'user_name';
+$sort_order = strtolower($_GET['order'] ?? 'asc');
+
+$allowed_sorts = [
+    'user_name',
+    'email',
+    'status',
+    'total_price'
+];
+
+if (!in_array($sort_by, $allowed_sorts)) {
+    $sort_by = 'user_name';
+}
+if (!in_array($sort_order, ['asc', 'desc'])) {
+    $sort_order = 'asc';
+}
+?>
+
 <?php if (empty($trips)): ?>
   <p style="text-align:center;">Hiç bilet bulunamadı.</p>
 <?php else: ?>
@@ -88,10 +121,10 @@ require_once __DIR__ . '/../../includes/header.php';
         </h3>
         <table>
           <tr>
-            <th>Yolcu</th>
-            <th>Email</th>
-            <th>Durum</th>
-            <th>Ücret</th>
+            <th><?= getSortLink('user_name', $sort_by, $sort_order, 'Yolcu') ?></th>
+            <th><?= getSortLink('email', $sort_by, $sort_order, 'Email') ?></th>
+            <th><?= getSortLink('status', $sort_by, $sort_order, 'Durum') ?></th>
+            <th><?= getSortLink('total_price', $sort_by, $sort_order, 'Ücret') ?></th>
             <th>İşlem</th>
           </tr>
           <?php foreach ($trip['tickets'] as $t): ?>
@@ -101,7 +134,24 @@ require_once __DIR__ . '/../../includes/header.php';
             <tr>
               <td><?= htmlspecialchars($t['user_name']) ?></td>
               <td><?= htmlspecialchars($t['email']) ?></td>
-              <td><?= htmlspecialchars($t['status']) ?></td>
+              <td><?php
+                        $status = $t['status'] ?? 'unknown';
+                        
+                        switch ($status) {
+                            case 'active':
+                                echo '<strong>Geçerli Sefer</strong>';
+                                break;
+                            case 'canceled':
+                                echo 'İptal Edilmiş';
+                                break;
+                            case 'expired':
+                                echo 'Geçmiş Sefer';
+                                break;
+                            default:
+                                echo 'Bilinmiyor';
+                                break;
+                        }
+                    ?></td>
               <td><?= htmlspecialchars($t['total_price']) ?> ₺</td>
               <td>
                 <?php 
