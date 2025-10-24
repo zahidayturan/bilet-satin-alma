@@ -6,6 +6,7 @@ require_once __DIR__ . '/../../includes/functions.php';
 $error = [];
 $success = "";
 
+// --- Mesaj Yönetimi Başlangıcı ---
 if (isset($_SESSION['success_message'])) {
     $success = htmlspecialchars($_SESSION['success_message']);
     unset($_SESSION['success_message']);
@@ -14,6 +15,7 @@ if (isset($_SESSION['error_message'])) {
     $error[] = htmlspecialchars($_SESSION['error_message']);
     unset($_SESSION['error_message']);
 }
+// --- Mesaj Yönetimi Bitişi ---
 
 // Firma ekleme
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add'])) {
@@ -48,8 +50,59 @@ if (isset($_GET['delete'])) {
 // Tüm firmaları çekme
 $companies = getAllBusCompanies();
 
+// --- Sıralama İşlemi Başlangıcı ---
+$sort_by = $_GET['sort'] ?? 'created_at';
+$sort_order = strtolower($_GET['order'] ?? 'desc');
+
+$allowed_sorts = [
+    'name',
+    'created_at'
+];
+
+// Güvenlik kontrolü
+if (!in_array($sort_by, $allowed_sorts)) {
+    $sort_by = 'created_at';
+}
+if (!in_array($sort_order, ['asc', 'desc'])) {
+    $sort_order = 'desc';
+}
+
+if (!empty($companies)) {
+    usort($companies, function($a, $b) use ($sort_by, $sort_order) {
+        $a_val = $a[$sort_by] ?? '';
+        $b_val = $b[$sort_by] ?? '';
+
+        if ($sort_by === 'id') {
+             $a_val = (int)$a_val;
+             $b_val = (int)$b_val;
+        }
+        if ($a_val == $b_val) {return 0;}
+
+        if ($sort_order === 'asc') {
+            return ($a_val < $b_val) ? -1 : 1;
+        } else {
+            return ($a_val > $b_val) ? -1 : 1;
+        }
+    });
+}
+
 $page_title = "Bana1Bilet - Sistem Yönetimi";
 require_once __DIR__ . '/../../includes/header.php';
+
+// Biletler sayfasından kopyalanan yardımcı fonksiyon
+function getSortLink($column, $current_sort, $current_order, $label) {
+    $new_order = ($current_sort === $column && $current_order === 'asc') ? 'desc' : 'asc';
+    
+    $arrow = '';
+    if ($current_sort === $column) {
+        $arrow = $current_order === 'asc' ? ' ▲' : ' ▼';
+    }
+
+    // Linkin show_companies.php'ye işaret ettiğinden emin olun.
+    $link = htmlspecialchars("show_companies.php?sort={$column}&order={$new_order}"); 
+    return "<a style=\"text-decoration:underline;\" href=\"{$link}\">{$label}{$arrow}</a>";
+}
+
 ?>
 
 <div style="margin-bottom: 20px;"><a href="panel.php">← Admin Paneli</a></div>
@@ -81,7 +134,13 @@ require_once __DIR__ . '/../../includes/header.php';
 <div class="table-container" style="margin-top: 20px;">
     <h3>Mevcut Firmalar</h3>
     <table>
-        <tr><th>ID</th><th>Ad</th><th>Logo Yolu</th><th>Oluşturulma</th><th>İşlem</th></tr>
+        <tr>
+            <th>ID</th>
+            <th><?= getSortLink('name', $sort_by, $sort_order, 'Ad') ?></th>
+            <th>Logo Yolu</th>
+            <th><?= getSortLink('created_at', $sort_by, $sort_order, 'Oluşturulma') ?></th>
+            <th>İşlem</th>
+        </tr>
         <?php if (empty($companies)): ?>
             <tr><td colspan="5">Henüz hiç firma eklenmemiş.</td></tr>
         <?php else: ?>
@@ -113,14 +172,13 @@ require_once __DIR__ . '/../../includes/header.php';
                     <td><?= date('d.m.Y H:i', strtotime($c['created_at']))  ?></td>
                     <td>
                         <a href="edit_company.php?id=<?= urlencode($c['id']) ?>">✏️ Düzenle</a> <br><br>
-                        <a href="?delete=<?= urlencode($c['id']) ?>" onclick="return confirm('Bu firmayı silmek istediğinizden emin misiniz?')">🗑️ Sil</a>
+                        <a href="?delete=<?= urlencode($c['id']) ?>" onclick="return confirm('Bu firmayı silmek istediğinizden emin misiniz?')" style="color: red;">🗑️ Sil</a>
                     </td>
                 </tr>
             <?php endforeach; ?>
         <?php endif; ?>
     </table>
 </div>
-
 
 <?php
 require_once __DIR__ . '/../../includes/footer.php';

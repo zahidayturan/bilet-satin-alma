@@ -80,11 +80,45 @@ function addCompanyAdmin(string $fullName, string $email, string $passwordCleart
     }
 }
 
+function deleteCompanyAdmin(string $adminId): array
+{
+    global $pdo;
+    if (empty($adminId)) {
+        return ['success' => false, 'message' => 'Yönetici ID\'si belirtilmedi.'];
+    }
+
+    try {
+        $checkStmt = $pdo->prepare("SELECT role FROM User WHERE id = :id");
+        $checkStmt->execute([':id' => $adminId]);
+        $user = $checkStmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user) {
+            return ['success' => false, 'message' => 'Belirtilen ID\'de kullanıcı bulunamadı.'];
+        }
+
+        if ($user['role'] !== 'company') {
+            return ['success' => false, 'message' => 'Bu kullanıcı bir firma yöneticisi değil (Rol: ' . $user['role'] . '). Silme işlemi engellendi.'];
+        }
+
+        $deleteStmt = $pdo->prepare("DELETE FROM User WHERE id = :id AND role = 'company'");
+        $deleteStmt->execute([':id' => $adminId]);
+        
+        if ($deleteStmt->rowCount() > 0) {
+            return ['success' => true, 'message' => 'Firma yöneticisi başarıyla silindi.'];
+        } else {
+            return ['success' => false, 'message' => 'Yönetici silinirken bir hata oluştu veya zaten silinmiş.'];
+        }
+
+    } catch (PDOException $e) {
+        return ['success' => false, 'message' => 'Veritabanı hatası nedeniyle silme işlemi başarısız oldu.'];
+    }
+}
+
 function getAllCompanyAdmins(): array
 {
     global $pdo;
     try {
-        $sql = "SELECT u.id, u.full_name, u.email, b.name AS company
+        $sql = "SELECT u.id, u.full_name, u.email, u.created_at, b.name AS company
                 FROM User u 
                 LEFT JOIN Bus_Company b ON u.company_id = b.id
                 WHERE u.role = 'company'

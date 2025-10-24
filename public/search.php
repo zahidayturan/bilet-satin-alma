@@ -44,10 +44,6 @@ function calculateDuration($departure, $arrival) {
     </div>
 </div>
 
-<div>
-
-</div>
-
 <h2 style="text-align:center;">🔎 Sefer Arama Sonuçları</h2>
 
 <?php if ($trips && count($trips) > 0): ?>
