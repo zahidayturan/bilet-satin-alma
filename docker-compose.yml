@@ -7,14 +7,7 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - .:/var/www/html
-      - sqlite_data:/var/www/html/database
-    
-    
-    environment:
-      - APP_ENV=development
+      - ./public:/var/www/html/public
+      - ./includes:/var/www/html/includes
+      - ./database:/var/www/html/database
     restart: unless-stopped
-
-volumes:
-  sqlite_data:
-    driver: local

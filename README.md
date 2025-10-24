@@ -7,14 +7,14 @@ Bu proje, bir otobüs bileti rezervasyon ve yönetim sisteminin temel işlevleri
 
 Geliştirme ve test süreçleri için önceden tanımlanmış kullanıcı hesapları mevcuttur.
 
-| Rol | Email | Şifre | Not |
-| :--- | :--- | :--- | :--- |
-| **Yolcu (User)** | `yolcu@bana1bilet.com` | `user123` | Bilet alımı, bakiye görüntüleme. |
-| **Admin** | `admin@bana1bilet.com` | `admin123` | Yönetimsel işlemler. |
-| **Firma (Company)** | `dortteker@bana1bilet.com` | `company123` | Kendi seferlerini yönetme. |
-| | `mordoraseyahat@bana1bilet.com` | `company123` | Diğer firma hesapları. |
-| | `uzayagiden@bana1bilet.com` | `company123` | |
-| | `gelesiyejet@bana1bilet.com` | `company123` | |
+| Rol | Email | Şifre |
+| :--- | :--- | :--- |
+| **Yolcu (User)** | `yolcu@bana1bilet.com` | `user123` |
+| **Admin** | `admin@bana1bilet.com` | `admin123` | 
+| **Firma (Company)** | `dortteker@bana1bilet.com` | 
+| | `mordoraseyahat@bana1bilet.com` | `company123` | 
+| | `uzayagiden@bana1bilet.com` | `company123` |
+| | `gelesiyejet@bana1bilet.com` | `company123` |
 
 ---
 
@@ -36,10 +36,12 @@ Bu yöntem, tüm bağımlılıkları (PHP, veritabanı) izole bir ortamda hazır
 1.  **Gereksinimler:** Sisteminizde [Docker](https://www.docker.com/products/docker-desktop) kurulu olmalıdır.
 2.  **Servisleri Başlatma:** Projenin ana dizininde aşağıdaki komutu çalıştırın:
     ```bash
-    docker compose up -d
-    ```
+    docker compose up --build
 
-3.  **Erişim:** Uygulamanıza tarayıcınızdan aşağıdaki adresten erişin:
+    docker compose up
+    ```
+    
+1.  **Erişim:** Uygulamanıza tarayıcınızdan aşağıdaki adresten erişin:
     ```
     http://localhost:8080
     ```
