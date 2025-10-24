@@ -72,7 +72,7 @@ function calculateDuration($departure, $arrival) {
   </div>
 
 <?php else: ?>
-  <h4 style="text-align:center;">Uygun sefer bulunamadı</h4>
+  <h4 style="text-align:center;color:red;">Uygun sefer bulunamadı</h4>
 
   <?php
   $suggested = getSuggestedTrips($from, $to);

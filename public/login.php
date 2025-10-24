@@ -70,6 +70,11 @@ $page_title = "Bana1Bilet - Giriş Yap";
         <button type="submit" class="form-button">Giriş Yap</button>
     </form>
     <p style="text-align: center;margin-top:24px;">Hesabın yok mu? <a href="register.php">Kayıt Ol</a></p>
+    <p style="text-align: center; margin-top: 24px;">
+        <a href="login_info.php" target="_blank">
+            <strong>YAVUZLAR</strong> - Giriş Bilgilerine Erişin
+        </a>
+    </p>
     <?php
         require_once __DIR__ . '/../includes/message_comp.php';
     ?>

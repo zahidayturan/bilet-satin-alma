@@ -1,5 +1,5 @@
 <?php
-$dbFile = __DIR__ . '/../database/biletler.sqlite';
+$dbFile = __DIR__ . '/../database/bana1bilet.sqlite';
 
 if (!file_exists(dirname($dbFile))) {
     mkdir(dirname($dbFile), 0777, true);
