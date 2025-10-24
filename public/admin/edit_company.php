@@ -54,12 +54,13 @@ require_once __DIR__ . '/../../includes/header.php';
     <h2>✏️ Firma Düzenle</h2>
 
     <form method="POST">
-        <label>Firma Adı</label>
-        <input type="text" name="name" value="<?= htmlspecialchars($company['name']) ?>" required><br><br>
+        <label>Firma Adı (Zorunlu)</label>
+        <input type="text" name="name" value="<?= htmlspecialchars($company['name']) ?>" required>
 
-        <label>Logo Yolu</label>
-        <input type="text" name="logo_path" value="<?= htmlspecialchars($company['logo_path']) ?>"><br><br>
+        <label>Logo Yolu (İsteğe bağlı)</label>
+        <input type="text" name="logo_path" value="<?= htmlspecialchars($company['logo_path']) ?>" placeholder="logo_ismi.png">
 
+        <p><strong>Uyarı: </strong> Firmaya logo eklemek veya düzenlemek isterseniz, önce sistemde logoların yer aldığı klasöre logoyu yüklemelisiniz. Aksi halde logo sistemde bulunamayacaktır. Formda yer alan ilgili alana logo dosyasının ismini uzantısı ile birlite giriniz.</p>
         <button class="form-button" type="submit">Kaydet</button>
     </form>
 </div>

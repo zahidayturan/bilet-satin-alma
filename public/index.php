@@ -17,32 +17,50 @@ require_once __DIR__ . '/../includes/header.php';
 
 <div class="search-back-container">
   <p style="text-align: center;padding:0 10px;">Aradığınız bütün seferler <strong>Bana1Bilet</strong> ile hızlı bir şekilde sizinle</p>
+
   <div class="search-container">
-    <form method="GET" class="search-form">
+    <form method="GET" action="search.php" class="search-form">
       <div>
         <label>Nereden</label>
-        <input type="text" name="from" placeholder="Ankara" value="<?= htmlspecialchars($from) ?>" required>
+        <input type="text" name="from" placeholder="Ankara" required>
       </div>
       <div>
         <label>Nereye</label>
-        <input type="text" name="to" placeholder="İstanbul" value="<?= htmlspecialchars($to) ?>" required>
+        <input type="text" name="to" placeholder="İstanbul" required>
       </div>
       <div>
         <label>Tarih</label>
-        <input type="date" name="date" value="<?= htmlspecialchars($date) ?>" required>
+        <input type="date" name="date" value="<?= date('Y-m-d') ?>" required>
       </div>
       <button type="submit" class="search-button">Sefer Ara</button>
     </form>
   </div>
-  <?php if ($from || $to): ?>
-    <a href="index.php" style="color:white;font-size:13px;">Aramayı temizle</a>
-  <?php endif; ?>
+</div>
+
+<div style="margin-top:20px;margin-bottom:20px;">
+  <div class="card-wrapper">
+    <div class="card-container">
+      <p class="card-title">Yolculuk Başlasın, Bilet Hazır.</p>
+      <p class="card-text">Dakikalar İçinde Güvenli Otobüs Bileti Alışverişi. Bana1Bilet ile Yola Çıkmak Çok Kolay.</p>
+    </div>
+
+    <div class="card-container">
+      <p class="card-title">En Uygunu, En Yakınınızda.</p>
+      <p class="card-text">Tüm Otobüs Firmaları Tek Platformda. Karşılaştır, Seç, En İyi Fiyatı Yakala.</p>
+    </div>
+
+    <div class="card-container">
+      <p class="card-title">Gönül Rahatlığıyla Seyahat.</p>
+      <p class="card-text">Güvenilir Ödeme, Anında Bilet ve Kesintisiz Destek. Yolculuğun Keyfini Çıkarın.</p>
+    </div>
+
+  </div>
 </div>
 
 
 <?php if ($trips): ?>
-  <h3 style="text-align: center;color:#224A59;margin-bottom:12px;">Yakın Tarihli Seferler</h3>
   <div class="table-container">
+      <h3 style="text-align: center;color:#224A59;margin-bottom:8px;">Yakın Tarihli Seferler</h3>
     <table>
     <tr>
       <th>Firma</th>

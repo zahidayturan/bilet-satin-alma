@@ -10,6 +10,11 @@ require_once __DIR__ . '/../includes/functions.php';
     <title><?= $page_title ?? 'Bana1Bilet' ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="icon" type="image/png" href="/assets/images/ico/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/assets/images/ico/favicon.svg" />
+    <link rel="shortcut icon" href="/assets/images/ico/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/ico/apple-touch-icon.png" />
+    <link rel="manifest" href="/assets/images/ico/site.webmanifest" />
 
     <style>
         header {

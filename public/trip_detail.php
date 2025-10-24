@@ -67,11 +67,11 @@ require_once __DIR__ . '/../includes/header.php';
             <p class="error">Maalesef, bu seferde boş koltuk kalmamış.</p>
         <?php else: ?>
             <a href="buy_ticket.php?id=<?= urlencode($trip['id']) ?>" >
-                <button class="form-button" style="margin-top:20px">🎟️ Bilet Satın Al</button>
+                <button class="form-button" style="margin-top:24px">🎟️ Bilet Satın Al</button>
             </a>    
         <?php endif; ?>
     <?php elseif (!isLoggedIn()): ?>
-        <a href="login.php"><button class="form-button">Bilet satın almak için <strong>Giriş Yapın</strong></button></a>
+        <a href="login.php"><button class="form-button" style="margin-top:24px">Bilet satın almak için <strong>Giriş Yapın</strong></button></a>
     <?php endif; ?> 
 </div>
 <?php else: ?>

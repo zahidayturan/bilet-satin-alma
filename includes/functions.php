@@ -900,6 +900,45 @@ function searchActiveTrips(string $from = '', string $to = '', string $date = ''
     }
 }
 
+function getSuggestedTrips(string $from, string $to): array
+{
+    global $pdo;
+
+    $sql = "
+        SELECT 
+            t.*, 
+            c.name AS company_name
+        FROM 
+            Trips t
+        LEFT JOIN 
+            Bus_Company c ON c.id = t.company_id
+        WHERE 
+            t.departure_city LIKE :from
+            AND t.destination_city LIKE :to
+            AND DATE(t.departure_time) BETWEEN :today AND DATE(:today, '+21 day')
+            AND DATETIME(t.departure_time) > DATETIME('now')
+        ORDER BY 
+            t.departure_time ASC
+        LIMIT 10
+    ";
+
+    try {
+        $suggestedStmt = $pdo->prepare($sql);
+        $suggestedStmt->execute([
+            ':from' => "%$from%",
+            ':to' => "%$to%",
+            ':today' => date('Y-m-d')
+        ]);
+
+        $suggested = $suggestedStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return $suggested;
+
+    } catch (PDOException $e) {
+        return [];
+    }
+}
+
 function validateCouponAndCalculatePrice(string $tripId, string $code): array
 {
     global $pdo;

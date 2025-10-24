@@ -27,6 +27,7 @@ $page_title = "Bana1Bilet - Giriş Yap";
     <title><?= $page_title ?? 'Bana1Bilet' ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="shortcut icon" href="/assets/images/ico/favicon.ico" />
 </head>
     <style>
         body {
@@ -44,7 +45,6 @@ $page_title = "Bana1Bilet - Giriş Yap";
 
         .login-title{
             font-size: 20px;
-            font-weight: bold;
             margin: 20px 8px;
             align-self: start;
         }
@@ -55,7 +55,7 @@ $page_title = "Bana1Bilet - Giriş Yap";
 
     </style>
 <body>
-<p class="login-title"><a href="index.php">Bana1Bilet</a></p>
+<p class="login-title"><a href="index.php">Bana<strong>1</strong>Bilet</a></p>
 <div class="container" style="min-width:25%;max-width:400px;">
     <h2>Giriş Yap</h2>
     <form method="POST" class="main-form">
