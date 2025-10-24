@@ -23,13 +23,11 @@ try {
     $db->beginTransaction();
     $db->exec($schema);
     $db->commit();
-
-    echo "Veritabanı ve tablolar oluşturuldu: $dbFile\n";
 } catch (Exception $e) {
     if (isset($db) && $db->inTransaction()) {
         $db->rollBack();
     }
-    echo "HATA: " . $e->getMessage() . PHP_EOL;
+    echo "Sistem başlatılırken hata oluştu. Sistemi sıfırlayın.";
     exit(1);
 }
 
@@ -38,11 +36,8 @@ function initializeDatabaseData(PDO $db): void
     // Bus_Company tablosunda veri olup olmadığını kontrol et
     $stmt = $db->query("SELECT COUNT(*) FROM Bus_Company");
     if ($stmt->fetchColumn() > 0) {
-        echo "Başlangıç verileri zaten mevcut. Ekleme yapılmadı.\n";
         return;
     }
-
-    echo "Başlangıç verileri ekleniyor...\n";
 
     $db->beginTransaction();
     try {
@@ -202,13 +197,11 @@ function initializeDatabaseData(PDO $db): void
 
 
         $db->commit();
-        echo "Başlangıç verileri başarıyla eklendi.\n";
-
     } catch (Exception $e) {
         if ($db->inTransaction()) {
             $db->rollBack();
         }
-        echo "HATA: Başlangıç verileri eklenirken bir sorun oluştu: " . $e->getMessage() . PHP_EOL;
+        echo "Sistem test verileri eklenirken bir sorun oluştu. Sistemi yeniden başlatın.";
         exit(1);
     }
 }

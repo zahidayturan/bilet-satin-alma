@@ -9,9 +9,12 @@ services:
     volumes:
       - .:/var/www/html
       - sqlite_data:/var/www/html/database
+    
+    
     environment:
       - APP_ENV=development
     restart: unless-stopped
 
 volumes:
   sqlite_data:
+    driver: local

@@ -1,4 +1,4 @@
-# 🚌 Bus Ticketing Platform – Database Schema
+# Bana1Bilet – Database Schema
 
 Bu veritabanı, otobüs bileti satış ve yönetim sistemine ait çok-kullanıcılı bir yapıyı temsil eder.
 Sistem; kullanıcılar, firmalar, seferler, biletler ve kuponlar arasında ilişkisel bir yapı kullanır.
@@ -6,7 +6,7 @@ Veritabanı **SQLite** üzerinde çalışacak şekilde tasarlanmıştır.
 
 ---
 
-## 🗂️ Tablolar ve İlişkiler
+## Tablolar ve İlişkiler
 
 ### 1. **User**
 
