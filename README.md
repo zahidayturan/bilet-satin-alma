@@ -50,9 +50,11 @@ Bu yöntem, tüm bağımlılıkları (PHP, veritabanı) izole bir ortamda hazır
 
 Docker kullanmak istemiyorsanız, yerel PHP kurulumunuz ile projeyi çalıştırabilirsiniz.
 
-1.  **Gereksinimler:** Sisteminizde PHP 7.4+ kurulu olmalıdır.
+1.  **Gereksinimler:** Sisteminizde PHP 7.4+ ve composer kurulu olmalıdır.
 2.  **Yerel Sunucuyu Başlatma:** Uygulamayı çalıştırmak için PHP'nin yerleşik sunucusunu kullanın ve sunucu kök dizinini `public` klasörüne ayarlayın:
     ```bash
+    composer install
+
     php -S localhost:8000 -t public
     ```
 3.  **Erişim:** Tarayıcınızı açın ve uygulamaya aşağıdaki adresten erişin:

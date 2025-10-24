@@ -1,28 +1,40 @@
-FROM php:8.3-apache
+FROM php:8.1-apache
 
-RUN apt-get update && apt-get install -y \
-    libsqlite3-dev sqlite3 zip unzip libicu-dev libpng-dev libjpeg-dev \
-    --no-install-recommends && rm -rf /var/lib/apt/lists/*
+# Sistem paketleri ve PHP uzantıları
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        libsqlite3-dev \
+        libzip-dev \
+        unzip \
+        libpng-dev \
+        libjpeg-dev \
+        libfreetype6-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN docker-php-ext-install -j$(nproc) pdo pdo_sqlite intl gd
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-RUN a2enmod rewrite
+# GD ve diğer PHP uzantılarını kur
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) pdo pdo_sqlite zip gd
 
+# Composer'ı yükle
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Çalışma dizini
 WORKDIR /var/www/html
 
-COPY . /var/www/html
+# Composer dosyalarını kopyala ve bağımlılıkları yükle
+COPY composer.* ./
+RUN composer install --no-dev --optimize-autoloader
 
-RUN echo '<VirtualHost *:80>\n\
-    DocumentRoot /var/www/html/public\n\
-    <Directory /var/www/html/public>\n\
-        Options FollowSymLinks\n\
-        AllowOverride All\n\
-        Require all granted\n\
-    </Directory>\n\
-</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
+# Proje dosyalarını kopyala
+COPY . .
 
-RUN chown -R www-data:www-data /var/www/html \
-    && find /var/www/html -type d -exec chmod 755 {} \; \
-    && find /var/www/html -type f -exec chmod 644 {} \;
+# Apache ayarları
+RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/*.conf \
+    && sed -ri -e 's!<Directory /var/www/>!<Directory /var/www/html/public>!g' /etc/apache2/apache2.conf \
+    && a2enmod rewrite
 
-CMD ["apache2-foreground"]
+# Geçici dosyalar için dizin
+RUN mkdir -p /var/www/html/tmp \
+    && chmod -R 777 /var/www/html/tmp \
+    && mkdir -p /var/www/html/database \
+    && chmod -R 777 /var/www/html/database

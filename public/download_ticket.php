@@ -91,6 +91,7 @@ $mpdf = new Mpdf([
     'margin_right' => 10,
     'margin_top' => 10,
     'margin_bottom' => 10,
+    'tempDir' => __DIR__ . '/../tmp',
 ]);
 
 $html = "
